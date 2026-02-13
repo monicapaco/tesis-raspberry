@@ -4,6 +4,7 @@
     "scripts": {
         "dev": "vite",
         "dev:simple": "node scripts/start-simple.js",
+        "set:config": "node scripts/set-configs.js",
         "build": "vite build"
     },
     "devDependencies": {

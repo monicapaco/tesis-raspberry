@@ -22,16 +22,17 @@ class EntityFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'name'=>'required|max:100',
-            'type_document'=>'required|max:20',
-            'n_document'=>'required|max:15',
-            'address'=>'required',
-            'region'=>'required',
-            'province'=>'required',
-            'district'=>'required',
-            'phone'=>'max:15',
-            'email'=>'max:50',
+            'name' => 'required|max:100',
+            'type_document' => 'required|max:20',
+            'n_document' => 'required|max:15',
+            'address' => 'required|max:70',
+
+            'region' => 'required|max:50',
+            'province' => 'required|max:50',
+            'district' => 'required|max:50',
+
+            'phone' => 'required|max:15',
+            'email' => 'required|email|max:50',
         ];
     }
 }

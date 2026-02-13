@@ -1,60 +1,92 @@
 @extends('layouts.admin')
-@section('contenido')
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <h3>Editar transporte {{ $transporte->name}}</h3>
-            @if (count($errors)>0)
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{$error}}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
-            <form action="{{ route('transporte.update', $transporte->id) }}" method="post" >
-                @csrf
-                @method('PATCH')
-                <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                    <div class="form-group">
-                        <label for="name">Nombre</label>
-                        <input type="text" name="name" required value="{{ $transporte->name}}" id=""
-                            class="form-control" placeholder="Nombre...">
+@section('contenido')
+
+    <h3 class="mb-4 text-center fw-semibold">
+        Editar transporte
+    </h3>
+
+    {{-- ERRORES --}}
+    @if ($errors->any())
+        <div class="alert alert-danger rounded-3 shadow-sm">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('transporte.update', $transporte->id) }}" method="POST" autocomplete="off">
+
+        @csrf
+        @method('PATCH')
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    {{-- NOMBRE --}}
+                    <div class="col-lg-6">
+                        <label class="form-label">Nombre *</label>
+
+                        <input type="text" name="name" class="form-control"
+                            value="{{ old('name', $transporte->name) }}" placeholder="Nombre del transporte..." required>
                     </div>
-                </div>
-                <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                    <div class="form-group">
-                        <label for="name">Tipo documento</label>
-                        <select name="type_document" id="" class="form-control">
-                            @if ($transporte->type_document=='DNI')
-                            <option value="DNI" selected>DNI</option>
-                            <option value="RUC">RUC</option>
-                            <option value="PAS">PAS</option>
-                        @elseif ($transporte->type_document=='RUC')
-                            <option value="DNI">DNI</option>
-                            <option value="RUC" selected>RUC</option>
-                            <option value="PAS">PAS</option>
-                        @else
-                            <option value="DNI">DNI</option>
-                            <option value="RUC">RUC</option>
-                            <option value="PAS" selected>PAS</option>
-                        @endif
+
+                    {{-- TIPO DOCUMENTO --}}
+                    <div class="col-lg-6">
+                        <label class="form-label">Tipo documento *</label>
+
+                        <select name="type_document" class="form-select" required>
+
+                            <option value="DNI"
+                                {{ old('type_document', $transporte->type_document) == 'DNI' ? 'selected' : '' }}>
+                                DNI
+                            </option>
+
+                            <option value="RUC"
+                                {{ old('type_document', $transporte->type_document) == 'RUC' ? 'selected' : '' }}>
+                                RUC
+                            </option>
+
+                            <option value="PAS"
+                                {{ old('type_document', $transporte->type_document) == 'PAS' ? 'selected' : '' }}>
+                                PAS
+                            </option>
+
                         </select>
                     </div>
-                </div>
-                <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                    <div class="form-group">
-                        <label for="name">Número documento</label>
-                        <input type="text" name="n_document" required value="{{ $transporte->n_document }}" id="" class="form-control" placeholder="Número de documento...">
+
+                    {{-- NUMERO DOCUMENTO --}}
+                    <div class="col-lg-6">
+                        <label class="form-label">Número documento *</label>
+
+                        <input type="text" name="n_document" class="form-control"
+                            value="{{ old('n_document', $transporte->n_document) }}" placeholder="Número de documento..."
+                            required>
                     </div>
+
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="reset"  class="btn btn-danger">Cancelar</button>
-                </div>
-            </form>
+
+            </div>
+
+            {{-- BOTONES --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-end gap-2">
+
+                <button type="submit" class="btn btn-dark">
+                    Guardar cambios
+                </button>
+
+                <a href="{{ route('transporte.index') }}" class="btn btn-outline-danger">
+                    Cancelar
+                </a>
+
+            </div>
 
         </div>
-    </div>
+
+    </form>
+
 @endsection

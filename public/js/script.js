@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const departamentoSelect = document.getElementById("region");
     const provinciaSelect = document.getElementById("province");
     const distritoSelect = document.getElementById("district");
+    const form = document.getElementById("providerForm");
 
     let peruData = {};
 
@@ -71,5 +72,15 @@ document.addEventListener("DOMContentLoaded", function() {
         const selectedDepartamento = departamentoSelect.value;
         const selectedProvincia = this.value;
         loadDistricts(selectedDepartamento, selectedProvincia);
+    });
+
+    // Validación extra submit
+    form.addEventListener("submit", e => {
+
+        if (!region.value || !province.value || !district.value) {
+            alert("Debe seleccionar Departamento, Provincia y Distrito");
+            e.preventDefault();
+        }
+
     });
 });

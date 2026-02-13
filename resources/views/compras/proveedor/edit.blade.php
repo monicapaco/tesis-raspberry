@@ -1,115 +1,173 @@
 @extends('layouts.admin')
 @section('contenido')
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <h3>Editar proveedor <br>{{ $persona->name}}</h3>
-            @if (count($errors)>0)
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{$error}}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-        </div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <h3 class="fw-bold mb-4">
+            Editar proveedor <br>
+            <small class="text-muted">{{ $persona->name }}</small>
+        </h3>
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </div>
+</div>
 
+<form action="{{ route('proveedor.update', $persona->id) }}"
+      method="POST"
+      autocomplete="off">
 
-    <form action="{{ route('proveedor.update', $persona->id) }}" method="post" >
-        @csrf
-        @method('PATCH')
-        <div class="row">
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="name">Nombre</label>
-                    <input type="text" name="name" required value="{{$persona->name}}" id=""
-                        class="form-control" placeholder="Nombre...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="name">Tipo documento</label>
-                    <select name="type_document" id="" class="form-control">
-                        @if ($persona->type_document=='DNI')
-                            <option value="DNI" selected>DNI</option>
-                            <option value="RUC">RUC</option>
-                            <option value="PAS">PAS</option>
-                        @elseif ($persona->type_document=='DNI')
-                            <option value="DNI">DNI</option>
-                            <option value="RUC" selected>RUC</option>
-                            <option value="PAS">PAS</option>
-                        @else
-                            <option value="DNI">DNI</option>
-                            <option value="RUC">RUC</option>
-                            <option value="PAS" selected>PAS</option>
-                        @endif
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="n_document">Número de documento</label>
-                    <input type="text" name="n_document" required value="{{ $persona->n_document }}" id=""
-                        class="form-control" placeholder="N° documento...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="address">Dirección</label>
-                    <input type="text" name="address" required value="{{ $persona->address }}" id=""
-                        class="form-control" placeholder="Direccion...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="region">Departamento:</label>
-                    <select id="region" name="region" class="form-control">
-                        <option value="{{$persona->region}}">{{$persona->region}}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="province">Provincia:</label>
-                    <select id="province" name="province" class="form-control" >
-                        <option value="{{$persona->province}}">{{$persona->province}}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="district">Distrito:</label>
-                    <select id="district" name="district" class="form-control" >
-                        <option value="{{$persona->district}}">{{$persona->district}}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="phone">Telefono</label>
-                    <input type="text" name="phone" required value="{{$persona->phone}}" id=""
-                        class="form-control" placeholder="Telefono...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="text" name="email" required value="{{$persona->email}}" id=""
-                        class="form-control" placeholder="Email...">
-                </div>
-            </div>
-            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="reset" class="btn btn-danger">Cancelar</button>
-                </div>
+    @csrf
+    @method('PATCH')
+
+    <div class="row">
+
+        {{-- Nombre --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Nombre *</label>
+                <input type="text"
+                       name="name"
+                       class="form-control form-control-lg"
+                       value="{{ $persona->name }}"
+                       required maxlength="100">
             </div>
         </div>
-    </form>
 
-        
+        {{-- Tipo documento --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Tipo documento *</label>
+                <select name="type_document"
+                        class="form-control form-control-lg"
+                        required>
+
+                    <option value="DNI" {{ $persona->type_document == 'DNI' ? 'selected' : '' }}>DNI</option>
+                    <option value="RUC" {{ $persona->type_document == 'RUC' ? 'selected' : '' }}>RUC</option>
+                    <option value="PAS" {{ $persona->type_document == 'PAS' ? 'selected' : '' }}>PAS</option>
+
+                </select>
+            </div>
+        </div>
+
+        {{-- Numero documento --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Número documento *</label>
+                <input type="text"
+                       name="n_document"
+                       class="form-control form-control-lg"
+                       value="{{ $persona->n_document }}"
+                       required maxlength="15">
+            </div>
+        </div>
+
+        {{-- Dirección --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Dirección *</label>
+                <input type="text"
+                       name="address"
+                       class="form-control form-control-lg"
+                       value="{{ $persona->address }}"
+                       required maxlength="70">
+            </div>
+        </div>
+
+        {{-- Departamento --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Departamento *</label>
+                <select id="region"
+                        name="region"
+                        class="form-control form-control-lg"
+                        required>
+                    <option value="{{ $persona->region }}">
+                        {{ $persona->region }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        {{-- Provincia --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Provincia *</label>
+                <select id="province"
+                        name="province"
+                        class="form-control form-control-lg"
+                        required>
+                    <option value="{{ $persona->province }}">
+                        {{ $persona->province }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        {{-- Distrito --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Distrito *</label>
+                <select id="district"
+                        name="district"
+                        class="form-control form-control-lg"
+                        required>
+                    <option value="{{ $persona->district }}">
+                        {{ $persona->district }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        {{-- Teléfono --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Teléfono *</label>
+                <input type="text"
+                       name="phone"
+                       class="form-control form-control-lg"
+                       value="{{ $persona->phone }}"
+                       required maxlength="15">
+            </div>
+        </div>
+
+        {{-- Email --}}
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label class="form-label">Email *</label>
+                <input type="email"
+                       name="email"
+                       class="form-control form-control-lg"
+                       value="{{ $persona->email }}"
+                       required maxlength="50">
+            </div>
+        </div>
+
+        {{-- Botones --}}
+        <div class="col-lg-12 text-end mt-2">
+            <button type="submit"
+                    class="btn btn-dark px-4">
+                Guardar cambios
+            </button>
+
+            <a href="{{ route('proveedor.index') }}"
+               class="btn btn-danger px-4">
+                Cancelar
+            </a>
+        </div>
+
+    </div>
+</form>
+
 @endsection
+
 @push('scripts')
-    <script src="{{asset('js/script.js')}}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
 @endpush

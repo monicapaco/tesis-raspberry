@@ -1,97 +1,139 @@
 @extends('layouts.admin')
+
 @section('contenido')
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <h3>Nuevo Ingreso</h3>
-            @if (count($errors) > 0)
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+
+<h3 class="mb-4 text-center fw-semibold">
+    Editar Ingreso
+</h3>
+
+@if ($errors->any())
+<div class="alert alert-danger rounded-3 shadow-sm">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+<form action="{{ route('ingreso.update',$ingreso->id) }}" method="POST">
+@csrf
+@method('PATCH')
+
+{{-- ================= INFO INGRESO ================= --}}
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body">
+
+        <h5 class="mb-4 text-muted fw-semibold">
+            Información del ingreso
+        </h5>
+
+        <div class="row g-3">
+
+            <div class="col-lg-12">
+                <label class="form-label">Proveedor</label>
+                <input class="form-control bg-light" value="{{ $ingreso->name }}" disabled>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label">Tipo comprobante</label>
+                <input class="form-control bg-light" value="{{ $ingreso->type_voucher }}" disabled>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label">Comprobante</label>
+                <input class="form-control bg-light"
+                       value="{{ $ingreso->serial_voucher }} - {{ $ingreso->number_voucher }}"
+                       disabled>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label">Estado del pedido</label>
+
+                <select name="status" class="form-select">
+                    <option value="Credito"
+                        {{ $ingreso->status == 'Credito' ? 'selected' : '' }}>
+                        Crédito
+                    </option>
+
+                    <option value="Al contado"
+                        {{ $ingreso->status == 'Al contado' ? 'selected' : '' }}>
+                        Al contado
+                    </option>
+                </select>
+            </div>
+
         </div>
+
     </div>
+</div>
 
-    <form action="{{route('ingreso.update',$ingreso->id)}}" method="post" >
-        @csrf
-        @method('PATCH')
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
-                <div class="form-group">
-                    <label for="provider">Proveedor</label>
-                
-                    <p>{{$ingreso->name}}</p>
-                    
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12">
-                <div class="form-group">
-                    <label for="type_voucher">Tipo comprobante</label>
-                    <p>{{$ingreso->type_voucher}}</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12">
-                <div class="form-group">
-                    <label for="serial_voucher">Comprobante:</label>
-                    <p>{{$ingreso->serial_voucher}}-{{$ingreso->number_voucher}}</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-3 col-md-3 col-xs-12">
-                <div class="form-group">
-                    <label for="status">Estado del pedido</label>
-                    <select name="status" id="" value="{{ old('status') }}" class="form-control">
-                        <option value="Credito">Credito</option>
-                        <option value="Al contado">Al contado</option>
-                    </select>
-                    
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="panel panel-primary">
-                <div class="panel-body">
-                    <div class="col-lg-12 col-sm-12 col-md-2 col-xs-12">
-                        <table id="detalles" class="table table-striped table-bordered table-condensed table-hover">
-                            <thead style="background-color: aqua">
-                                <th>Artículo</th>
-                                <th>Cantidad</th>
-                                <th>Precio compra</th>
-                                <th>Precio venta</th>
-                                <th>Subtotal</th>
-                            </thead>
-                            <tfoot>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th><h4 id="total">S/. {{$ingreso->total}}</h4></th>
-                            </tfoot>
-                            <tbody>
-                                @foreach ($detalles as $det)
-                                    <tr>
-                                        <td>{{$det->articulo}}</td>
-                                        <td>{{$det->quantity}}</td>
-                                        <td>{{$det->purchase_price}}</td>
-                                        <td>{{$det->sale_price}}</td>
-                                        <td>{{$det->purchase_price*$det->quantity}}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+{{-- ================= DETALLE ================= --}}
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body">
 
-            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12" id="guardar">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="reset" class="btn btn-danger">Cancelar</button>
-                </div>
-            </div>
+        <h5 class="mb-4 text-muted fw-semibold">
+            Detalle del ingreso
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-header-soft">
+                    <tr>
+                        <th>Artículo</th>
+                        <th>Cantidad</th>
+                        <th>P. Compra</th>
+                        <th>P. Venta</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach ($detalles as $det)
+                        <tr>
+                            <td>{{ $det->articulo }}</td>
+                            <td>{{ $det->quantity }}</td>
+                            <td>S/. {{ number_format($det->purchase_price,2) }}</td>
+                            <td>S/. {{ number_format($det->sale_price,2) }}</td>
+                            <td class="fw-semibold">
+                                S/. {{ number_format($det->purchase_price * $det->quantity,2) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+
+                <tfoot>
+                    <tr class="fw-semibold">
+                        <td colspan="4" class="text-end">
+                            TOTAL
+                        </td>
+                        <td>
+                            <h5 class="mb-0">
+                                S/. {{ number_format($ingreso->total,2) }}
+                            </h5>
+                        </td>
+                    </tr>
+                </tfoot>
+
+            </table>
         </div>
-        
-    </form>
+
+    </div>
+</div>
+
+{{-- BOTONES --}}
+<div class="text-end">
+    <button type="submit" class="btn btn-dark px-4">
+        Guardar cambios
+    </button>
+
+    <a href="{{ url('compras/ingreso') }}"
+       class="btn btn-outline-danger px-4">
+        Cancelar
+    </a>
+</div>
+
+</form>
+
 @endsection

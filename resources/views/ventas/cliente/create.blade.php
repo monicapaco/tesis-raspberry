@@ -1,104 +1,201 @@
 @extends('layouts.admin')
+
 @section('contenido')
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <h3>Nuevo cliente</h3>
-            @if (count($errors) > 0)
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-        </div>
+
+<div class="container-fluid">
+
+    {{-- HEADER --}}
+    <div class="mb-4">
+        <h3 class="fw-semibold mb-0">
+            Nuevo cliente
+        </h3>
+        <small class="text-muted">
+            Registrar información del cliente
+        </small>
     </div>
 
-    <form action="{{ url('ventas/cliente') }}" method="post" autocomplete="off">
+
+    {{-- ERRORES --}}
+    @if ($errors->any())
+        <div class="alert alert-danger rounded-3 shadow-sm">
+            <strong>Se encontraron errores:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+
+    <form action="{{ url('ventas/cliente') }}"
+            method="POST"
+            autocomplete="off">
+
         @csrf
-        <div class="row">
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="name">Nombre</label>
-                    <input type="text" name="name" required value="{{ old('name') }}" id=""
-                        class="form-control" placeholder="Nombre...">
+
+
+        <div class="card shadow-sm border-0 rounded-4">
+
+            <div class="card-body p-4">
+
+                <div class="row g-3">
+
+                    {{-- Nombre --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Nombre *
+                        </label>
+                        <input type="text"
+                                name="name"
+                                class="form-control"
+                                value="{{ old('name') }}"
+                                required>
+                    </div>
+
+
+                    {{-- Tipo documento --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Tipo documento *
+                        </label>
+                        <select name="type_document"
+                                class="form-select"
+                                required>
+                            <option value="">Seleccionar</option>
+                            <option value="DNI">DNI</option>
+                            <option value="RUC">RUC</option>
+                            <option value="PAS">PASAPORTE</option>
+                        </select>
+                    </div>
+
+
+                    {{-- Numero documento --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Número documento *
+                        </label>
+                        <input type="text"
+                                name="n_document"
+                                class="form-control"
+                                value="{{ old('n_document') }}"
+                                required>
+                    </div>
+
+
+                    {{-- Dirección --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Dirección *
+                        </label>
+                        <input type="text"
+                                name="address"
+                                class="form-control"
+                                value="{{ old('address') }}"
+                                required>
+                    </div>
+
+
+                    {{-- Departamento --}}
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Departamento *
+                        </label>
+                        <select id="region"
+                                name="region"
+                                class="form-select"
+                                required>
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+
+
+                    {{-- Provincia --}}
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Provincia *
+                        </label>
+                        <select id="province"
+                                name="province"
+                                class="form-select"
+                                disabled
+                                required>
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+
+
+                    {{-- Distrito --}}
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Distrito *
+                        </label>
+                        <select id="district"
+                                name="district"
+                                class="form-select"
+                                disabled
+                                required>
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+
+
+                    {{-- Teléfono --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Teléfono *
+                        </label>
+                        <input type="text"
+                                name="phone"
+                                class="form-control"
+                                value="{{ old('phone') }}"
+                                required>
+                    </div>
+
+
+                    {{-- Email --}}
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Email *
+                        </label>
+                        <input type="email"
+                                name="email"
+                                class="form-control"
+                                value="{{ old('email') }}"
+                                required>
+                    </div>
+
                 </div>
+
             </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="name">Tipo documento</label>
-                    <select name="type_document" id="" class="form-control">
-                        <option value="DNI">DNI</option>
-                        <option value="RUC">RUC</option>
-                        <option value="PAS">PAS</option>
-                    </select>
+
+
+            {{-- FOOTER BOTONES --}}
+            <div class="card-footer bg-white border-0 p-4">
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <button type="submit" class="btn btn-dark">
+                        Guardar cliente
+                    </button>
+
+                    <a href="{{ route('cliente.index') }}" class="btn btn-outline-danger">
+                        Cancelar
+                    </a>
+
                 </div>
+
             </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="n_document">Número de documento</label>
-                    <input type="text" name="n_document" required value="{{ old('n_document') }}" id=""
-                        class="form-control" placeholder="N° documento...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="address">Dirección</label>
-                    <input type="text" name="address" required value="{{ old('address') }}" id=""
-                        class="form-control" placeholder="Direccion...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="region">Departamento:</label>
-                    <select id="region" name="region" class="form-control">
-                        <option value="">Selecciona un departamento</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="province">Provincia:</label>
-                    <select id="province" name="province" class="form-control" disabled>
-                        <option value="">Selecciona una provincia</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="district">Distrito:</label>
-                    <select id="district" name="district" class="form-control" disabled>
-                        <option value="">Selecciona un distrito</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="phone">Telefono</label>
-                    <input type="text" name="phone" required value="{{ old('phone') }}" id=""
-                        class="form-control" placeholder="Telefono...">
-                </div>
-            </div>
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="text" name="email" required value="{{ old('email') }}" id=""
-                        class="form-control" placeholder="Email...">
-                </div>
-            </div>
-            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="reset" class="btn btn-danger">Cancelar</button>
-                </div>
-            </div>
+
         </div>
 
     </form>
 
+</div>
 
 @endsection
+
+
 @push('scripts')
-    <script src="{{asset('js/script.js')}}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
 @endpush

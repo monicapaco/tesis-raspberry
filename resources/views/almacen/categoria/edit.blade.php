@@ -1,35 +1,85 @@
 @extends('layouts.admin')
-@section('contenido')
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <h3>Editar categoria {{ $categoria->name}}</h3>
-            @if (count($errors)>0)
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{$error}}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
-            <form action="{{ route('categoria.update', $categoria->id) }}" method="post" >
-                @csrf
-                @method('PATCH')
-                <div class="form-group">
-                    <label for="name">Nombre</label>
-                    <input type="text" name="name" id="" class="form-control" placeholder="Nombre..." value="{{$categoria->name}}">
-                </div>
-                <div class="form-group">
-                    <label for="description">Descripción</label>
-                    <input type="text" name="description" id="" class="form-control" placeholder="Descripción..." value="{{$categoria->description}}">
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="reset"  class="btn btn-danger">Cancelar</button>
-                </div>
-            </form>
+@section('contenido')
+
+<h3 class="mb-4 text-center fw-semibold">
+    Editar categoría
+</h3>
+
+{{-- ERRORES --}}
+@if ($errors->any())
+<div class="alert alert-danger shadow-sm rounded-3">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+<form action="{{ route('categoria.update', $categoria->id) }}" method="post">
+@csrf
+@method('PATCH')
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+
+        <h5 class="mb-4 text-muted fw-semibold">
+            Información de la categoría
+        </h5>
+
+        <div class="row g-3">
+
+            {{-- NOMBRE --}}
+            <div class="col-lg-12">
+                <label class="form-label fw-semibold">
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="Ej: Bebidas, Lácteos, Electrónica..."
+                    value="{{ old('name', $categoria->name) }}"
+                    required
+                >
+            </div>
+
+            {{-- DESCRIPCIÓN --}}
+            <div class="col-lg-12">
+                <label class="form-label fw-semibold">
+                    Descripción
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="4"
+                    class="form-control"
+                    placeholder="Describe brevemente la categoría"
+                    required
+                >{{ old('description', $categoria->description) }}</textarea>
+            </div>
 
         </div>
+
     </div>
+</div>
+
+{{-- BOTONES --}}
+<div class="text-end mt-4">
+
+    <button type="submit" class="btn btn-dark px-4">
+        Actualizar categoría
+    </button>
+
+    <a href="{{ url('almacen/categoria') }}"
+        class="btn btn-outline-danger px-4">
+        Cancelar
+    </a>
+
+</div>
+
+</form>
+
 @endsection

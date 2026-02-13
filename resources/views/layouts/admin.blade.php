@@ -1,226 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>ADVentas </title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.5 -->
-    <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{asset('css/font-awesome.css')}}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{asset('css/AdminLTE.min.css')}}">
-    <!-- Bootstrap/select-->
-    <link rel="stylesheet" href="{{asset('css/bootstrap-select.min.css')}}">
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-         folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="{{asset('css/_all-skins.min.css')}}">
-    <link rel="apple-touch-icon" href="{{asset('img/apple-touch-icon.png')}}">
-    <link rel="shortcut icon" href="{{asset('img/favicon.ico')}}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+
+    <title>@yield('title', 'Vraem Motors Joshe - Admin')</title>
+
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <style>
+        body {
+            background: #f5f6f8;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #111;
+        }
+
+        .sidebar a {
+            color: #d1d1d1;
+        }
+
+        .sidebar a:hover {
+            background: #1c1c1c;
+            color: white;
+        }
+
+        .sidebar .submenu a {
+            padding-left: 2rem;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 
-<body class="hold-transition skin-blue sidebar-mini">
-    <div class="wrapper">
+<body>
 
-        <header class="main-header">
+    <div class="d-flex">
 
-            <!-- Logo -->
-            <a href="" class="logo">
-                <!-- mini logo for sidebar mini 50x50 pixels -->
-                <span class="logo-mini"><b>AD</b>V</span>
-                <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>ADVentas</b></span>
-            </a>
+        {{-- SIDEBAR --}}
+        <aside class="sidebar p-3">
 
-            <!-- Header Navbar: style can be found in header.less -->
-            <nav class="navbar navbar-static-top" role="navigation">
-                <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Navegación</span>
-                </a>
-                <!-- Navbar Right Menu -->
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-                        <!-- Messages: style can be found in dropdown.less-->
+            <h4 class="sidebar-title text-white mb-4">
+                Admin Panel
+            </h4>
 
-                        <!-- User Account: style can be found in dropdown.less -->
-                        <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <small class="bg-red">Online</small>
-                                <span class="hidden-xs">{{ Auth::user()->name }}</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <!-- User image -->
-                                <li class="user-header">
+            <ul class="nav flex-column">
 
-                                    <p>
-                                        <small>{{ Auth::user()->name }}-{{ Auth::user()->email}}</small>
-                                    </p>
-                                </li>
+                {{-- ALMACEN --}}
+                <li>
+                    <a class="nav-link" data-bs-toggle="collapse" href="#almacenMenu">
+                        <i class="fa fa-laptop"></i>
+                        <span>Almacén</span>
+                    </a>
 
-                                <!-- Menu Footer-->
-                                <li class="user-footer">
+                    <div class="submenu" id="almacenMenu">
+                        <a href="{{ url('almacen/articulo') }}" class="nav-link">Inventario</a>
+                        <a href="{{ url('almacen/categoria') }}" class="nav-link">Categorías</a>
+                    </div>
+                </li>
 
-                                    <div class="pull-right">
-                                        <form action="{{route('logout')}}" method="POST" >
-                                            @csrf
-                                            <button type="submit" class="btn btn-default btn-flat">Cerrar</a>
-                                        </form>
-                                        
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
+                {{-- COMPRAS --}}
+                <li>
+                    <a class="nav-link" data-bs-toggle="collapse" href="#comprasMenu">
+                        <i class="fa fa-th"></i>
+                        <span>Compras</span>
+                    </a>
 
-                    </ul>
-                </div>
+                    <div class="submenu" id="comprasMenu">
+                        <a href="{{ url('compras/ingreso') }}" class="nav-link">Ingresos</a>
+                        <a href="{{ url('compras/proveedor') }}" class="nav-link">Proveedores</a>
+                    </div>
+                </li>
 
-            </nav>
-        </header>
-        <!-- Left side column. contains the logo and sidebar -->
-        <aside class="main-sidebar">
-            <!-- sidebar: style can be found in sidebar.less -->
-            <section class="sidebar">
-                <!-- Sidebar user panel -->
+                {{-- VENTAS --}}
+                <li>
+                    <a class="nav-link" data-bs-toggle="collapse" href="#ventasMenu">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span>Ventas</span>
+                    </a>
 
-                <!-- sidebar menu: : style can be found in sidebar.less -->
-                <ul class="sidebar-menu">
-                    <li class="header"></li>
+                    <div class="submenu" id="ventasMenu">
+                        <a href="{{ url('ventas/venta') }}" class="nav-link">Ventas</a>
+                        <a href="{{ url('ventas/cliente') }}" class="nav-link">Clientes</a>
+                        <a href="{{ url('ventas/transporte') }}" class="nav-link">Transporte</a>
+                    </div>
+                </li>
 
-                    <li class="treeview">
-                        <a href="#">
-                            <i class="fa fa-laptop"></i>
-                            <span>Almacén</span>
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="{{url('almacen/articulo')}}"><i class="fa fa-circle-o"></i> Artículos</a></li>
-                            <li><a href="{{url('almacen/categoria')}}"><i class="fa fa-circle-o"></i> Categorías</a></li>
-                        </ul>
-                    </li>
+            </ul>
 
-                    <li class="treeview">
-                        <a href="#">
-                            <i class="fa fa-th"></i>
-                            <span>Compras</span>
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="{{url('compras/ingreso')}}"><i class="fa fa-circle-o"></i> Ingresos</a></li>
-                            <li><a href="{{url('compras/proveedor')}}"><i class="fa fa-circle-o"></i> Proveedores</a></li>
-                        </ul>
-                    </li>
-                    <li class="treeview">
-                        <a href="#">
-                            <i class="fa fa-shopping-cart"></i>
-                            <span>Ventas</span>
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="{{url('ventas/venta')}}"><i class="fa fa-circle-o"></i> Ventas</a></li>
-                            <li><a href="{{url('ventas/cliente')}}"><i class="fa fa-circle-o"></i> Clientes</a></li>
-                            <li><a href="{{url('ventas/transporte')}}"><i class="fa fa-circle-o"></i> Transporte</a></li>
-                        </ul>
-                    </li>
-                    <!--
-                    <li class="treeview">
-                        <a href="#">
-                            <i class="fa fa-folder"></i> <span>Acceso</span>
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="configuracion/usuario"><i class="fa fa-circle-o"></i> Usuarios</a></li>
-
-                        </ul>
-                    </li>
-                    -->
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-plus-square"></i> <span>Ayuda</span>
-                            <small class="label pull-right bg-red">PDF</small>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-info-circle"></i> <span>Acerca De...</span>
-                            <small class="label pull-right bg-yellow">IT</small>
-                        </a>
-                    </li>
-
-                </ul>
-            </section>
-            <!-- /.sidebar -->
         </aside>
 
+        {{-- CONTENIDO --}}
+        <div class="flex-grow-1">
 
+            {{-- NAVBAR --}}
+            <nav class="navbar navbar-light bg-white shadow-sm px-4">
 
+                <button class="btn btn-dark hamburger active" id="toggleSidebar">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
 
+                <div class="d-flex align-items-center gap-3">
 
-        <!--Contenido-->
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+                    <span>{{ Auth::user()->name }}</span>
 
-            <!-- Main content -->
-            <section class="content">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button class="btn btn-outline-danger btn-sm">
+                            Cerrar sesión
+                        </button>
+                    </form>
 
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="box">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">Sistema de Ventas</h3>
-                                <div class="box-tools pull-right">
-                                    <button class="btn btn-box-tool" data-widget="collapse"><i
-                                            class="fa fa-minus"></i></button>
+                </div>
+            </nav>
 
-                                    <button class="btn btn-box-tool" data-widget="remove"><i
-                                            class="fa fa-times"></i></button>
-                                </div>
-                            </div>
-                            <!-- /.box-header -->
-                            <div class="box-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <!--Contenido-->
-                                        @yield('contenido')
-                                        <!--Fin Contenido-->
-                                    </div>
-                                </div>
+            <main class="p-4">
+                @yield('contenido')
+            </main>
 
-                            </div>
-                        </div><!-- /.row -->
-                    </div><!-- /.box-body -->
-                </div><!-- /.box -->
-        </div><!-- /.col -->
-    </div><!-- /.row -->
-
-    </section><!-- /.content -->
-    </div><!-- /.content-wrapper -->
-    <!--Fin-Contenido-->
-    <footer class="main-footer">
-        <div class="pull-right hidden-xs">
-            <b>Version</b> 2.3.0
         </div>
-        <strong>Copyright &copy; 2015-2025.</strong> All rights reserved.
-    </footer>
 
+    </div>
 
-    <!-- jQuery 2.1.4 -->
-    <script src="{{asset('js/jQuery-2.1.4.min.js')}}"></script>
-    <!-- Bootstrap 3.3.5 -->
-    <script src="{{asset('js/bootstrap.min.js')}}"></script>
-    <!-- AdminLTE App -->
-    <script src="{{asset('js/app.min.js')}}"></script>
-    <!-- DEPARTAMENTOS-->
+    <script>
+        const toggleBtn = document.getElementById("toggleSidebar");
+
+        toggleBtn.addEventListener("click", function() {
+
+            document.body.classList.toggle("sidebar-collapsed");
+            this.classList.toggle("active");
+
+        });
+
+        if (document.body.classList.contains("sidebar-collapsed")) {
+            toggleBtn.classList.add("active");
+        }
+    </script>
+
     @stack('scripts')
-    <!--script src="{{asset('js/script.js')}}"></script-->
-    <!-- Select/bootstrap-->
-    <script src="{{asset('js/bootstrap-select.min.js')}}"></script>
-    <!-- CDN de SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 
 </html>

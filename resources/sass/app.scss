@@ -1,3 +1,22 @@
+// =======================
+// Colores de marca
+// =======================
+
+$primary:   #f2b705; // Germany gold
+$secondary: #1c1c1c; // negro técnico
+$danger:    #c62828; // rojo potencia
+
+$body-bg:   #f8f9fa;
+$body-color:#1c1c1c;
+
+// Links
+$link-color: $secondary;
+$link-hover-color: darken($secondary, 10%);
+
+// Inputs focus
+$input-focus-border-color: lighten($primary, 10%);
+$input-focus-box-shadow: 0 0 0 0.2rem rgba(242, 183, 5, 0.25);
+
 // Fonts
 @import url('https://fonts.bunny.net/css?family=Nunito');
 
@@ -5,4 +24,142 @@
 @import 'variables';
 
 // Bootstrap
-@import 'bootstrap/scss/bootstrap';
+@import "bootstrap/scss/bootstrap";
+
+/* ===== CUSTOM ADMIN SIDEBAR ===== */
+
+.sidebar .nav-link {
+    color: #bfbfbf;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: #1f1f1f;
+    color: white;
+}
+
+.sidebar .nav-link.active {
+    background: #000;
+    color: white;
+    font-weight: 600;
+    position: relative;
+}
+
+.sidebar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    background: white;
+    border-radius: 4px;
+}
+
+/* Animación acordeón */
+.collapse {
+    transition: height 0.25s ease;
+}
+
+/* hamburger */
+.hamburger {
+    width: 40px;
+    height: 34px;
+    position: relative;
+    border: none;
+}
+
+.hamburger span {
+    position: absolute;
+    width: 22px;
+    height: 2px;
+    background: white;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
+}
+
+/* Estado normal = ☰ */
+.hamburger span:nth-child(1) { top: 10px; }
+.hamburger span:nth-child(2) { top: 16px; }
+.hamburger span:nth-child(3) { top: 22px; }
+
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: #111;
+    transition: margin-left 0.3s ease;
+}
+
+/* estado colapsado */
+.sidebar-collapsed .sidebar {
+    margin-left: -260px;
+}
+
+.flex-grow-1 {
+    transition: margin-left 0.3s ease;
+}
+
+/* admin layout */
+.sidebar {
+    font-weight: 500;
+}
+
+.sidebar-title {
+    text-align: center;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.sidebar .nav-link {
+    font-size: 1.08rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar li {
+    margin-bottom: 6px;
+}
+
+.sidebar a {
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+/* tables */
+.table-header-soft {
+    background-color: #dee2e6;
+}
+
+.table-header-soft th {
+    font-weight: 600;
+    color: #6c757d;
+    letter-spacing: 0.03em;
+}
+
+/* image upload */
+.upload-zone{
+    cursor:pointer;
+    transition: all .2s ease;
+    background:#fafafa;
+}
+
+.upload-zone:hover{
+    background:#f1f3f5;
+    border-color:#adb5bd !important;
+}
+
+.upload-zone.dragover{
+    background:#e9ecef;
+    border-color:#495057 !important;
+}
+

@@ -21,23 +21,26 @@ class SaleController extends Controller
     {
         $this->middleware('auth');
     }
+
     public function index(Request $request)
     {
-        //
-        if($request)
-        {
-            $query=     trim($request->get('searchText'));
-            $ventas=    DB::table('sales as v')
-                        ->join('entities as p','v.client_id','=','p.id')
-                        ->join('detail_sales as ds','v.id','=','ds.sale_id')
-                        ->select('v.id',DB::raw("DATE_FORMAT(v.created_at,'%d/%m/%Y') as created_at"),
-                        'p.name','v.type_voucher','v.serial_voucher','v.number_voucher','v.status','v.total')
-                        ->where('v.number_voucher','LIKE','%'.$query.'%')
-                        ->orderBy('v.id','desc')
-                        ->groupBy('v.id','v.created_at','p.name','v.type_voucher','v.serial_voucher','v.number_voucher','v.status','v.total')
-                        ->paginate(7);
-            return view('ventas.venta.index',["ventas"=>$ventas,"searchText"=>$query]);    
-        }
+        $query = trim($request->get('searchText'));
+
+        $ventas = Sale::with('client')
+            ->when($query, function ($q) use ($query) {
+                $q->where('number_voucher', 'LIKE', "%$query%")
+                ->orWhereHas('client', function ($c) use ($query) {
+                        $c->where('name','LIKE',"%$query%")
+                        ->orWhere('n_document','LIKE',"%$query%");
+                });
+            })
+            ->orderBy('id','desc')
+            ->paginate(7);
+
+        return view('ventas.venta.index', [
+            "ventas" => $ventas,
+            "searchText" => $query
+        ]);
     }
 
     /**
@@ -64,50 +67,85 @@ class SaleController extends Controller
      */
     public function store(SaleFormRequest $request)
     {
-        //
         try {
-            //code...
+
             DB::beginTransaction();
-            $venta=new Sale;
-            $venta->client_id=$request->get('client_id');
-            $venta->carrier_id=$request->get('carrier_id');
-            $venta->type_voucher=$request->get('type_voucher');
-            $venta->serial_voucher=$request->get('serial_voucher');
-            $venta->number_voucher=$request->get('number_voucher');
-            $venta->total=$request->get('total');
-            $venta->status=$request->get('status');
+
+            $venta = new Sale();
+            $venta->client_id       = $request->get('client_id');
+            $venta->carrier_id      = $request->get('carrier_id');
+            $venta->type_voucher    = $request->get('type_voucher');
+            $venta->serial_voucher  = $request->get('serial_voucher');
+            $venta->number_voucher  = $request->get('number_voucher');
+            $venta->total           = $request->get('total');
+
+            // ================================
+            // ESTADO COMERCIAL
+            // ================================
+            $status = $request->get('status');
+            $venta->status = $status;
+
+            // ================================
+            // ESTADO DE PAGO
+            // ================================
+            if ($status === 'Al contado') {
+                $venta->payment_status = 'Pagado';
+                $venta->paid_at = now();
+            } else {
+                $venta->payment_status = 'Pendiente';
+                $venta->paid_at = null;
+            }
+
             $venta->save();
 
-            $idarticulo=$request->get('item_id');
-            $cantidad=$request->get('quantity');
-            //$precio_compra=$request->get('purchase_price');
-            $precio_venta=$request->get('sale_price');
 
-            $cont=0;
-            while($cont<count($idarticulo)){
-                $detalle=new DetailSale();
-                $detalle->sale_id=$venta->id;
-                $detalle->item_id=$idarticulo[$cont];
-                $detalle->quantity=$cantidad[$cont];
-                //$detalle->purchase_price=$precio_compra[$cont];
-                $detalle->sale_price=$precio_venta[$cont];
-                $detalle->save();
-                $cont=$cont+1;
+            // ================================
+            // DETALLE DE VENTA
+            // ================================
+            $idarticulo   = $request->get('item_id');
+            $cantidad     = $request->get('quantity');
+            $precio_venta = $request->get('sale_price');
+
+            for ($cont = 0; $cont < count($idarticulo); $cont++) {
+
+                $item = DB::table('items')
+                    ->where('id', $idarticulo[$cont])
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$item) {
+                    throw new Exception("Artículo no encontrado.");
+                }
+
+                if ($item->stock < $cantidad[$cont]) {
+                    throw new Exception("Stock insuficiente para {$item->name}");
+                }
+
+                DetailSale::create([
+                    'sale_id'    => $venta->id,
+                    'item_id'    => $idarticulo[$cont],
+                    'quantity'   => $cantidad[$cont],
+                    'sale_price' => $precio_venta[$cont],
+                ]);
+
+                DB::table('items')
+                    ->where('id', $idarticulo[$cont])
+                    ->decrement('stock', $cantidad[$cont]);
             }
+
             DB::commit();
 
-        } 
-        catch (Exception $e){
-            //Log::error()
-            Log::error('Error en la transacción: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            
+        } catch (Exception $e) {
+
             DB::rollBack();
+
+            Log::error('Error al registrar venta: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        return redirect('ventas/venta');
+
+        return redirect('ventas/venta')
+            ->with('success', 'Venta registrada correctamente');
     }
 
     /**
@@ -161,11 +199,23 @@ class SaleController extends Controller
      */
     public function update(UpdSaleFormRequest $request, string $id)
     {
-        //
-        $venta=Sale::findOrFail($id);
-        $venta->status=$request->get('status');
-        $venta->update();
-        return redirect('ventas/venta');
+        $venta = Sale::findOrFail($id);
+
+        $nuevoStatus = $request->get('status');
+
+        // ================================
+        // SI SE MARCA COMO PAGADO
+        // ================================
+        if ($nuevoStatus === 'Pagado' && $venta->payment_status !== 'Pagado') {
+            $venta->payment_status = 'Pagado';
+            $venta->paid_at = now();
+        }
+
+        $venta->status = $nuevoStatus;
+        $venta->save();
+
+        return redirect('ventas/venta')
+            ->with('success', 'Venta actualizada');
     }
 
     /**
@@ -173,13 +223,54 @@ class SaleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
-        $venta=Sale::findOrFail($id);
-        $venta->status='Anulado';
-        $venta->update();
+        try {
 
-        return redirect('ventas/venta');
+            DB::beginTransaction();
+
+            $venta = Sale::findOrFail($id);
+
+            // ================================
+            // EVITAR DOBLE ANULACIÓN
+            // ================================
+            if ($venta->status === 'Anulado') {
+                return redirect('ventas/venta')
+                    ->with('error', 'La venta ya está anulada');
+            }
+
+            // ================================
+            // OBTENER DETALLES DE LA VENTA
+            // ================================
+            $detalles = DetailSale::where('sale_id', $id)->get();
+
+            foreach ($detalles as $detalle) {
+
+                DB::table('items')
+                    ->where('id', $detalle->item_id)
+                    ->increment('stock', $detalle->quantity);
+            }
+
+            // ================================
+            // ANULAR VENTA
+            // ================================
+            $venta->status = 'Anulado';
+            $venta->update();
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+            Log::error('Error al anular venta: ' . $e->getMessage());
+
+            return redirect('ventas/venta')
+                ->with('error', 'No se pudo anular la venta');
+        }
+
+        return redirect('ventas/venta')
+            ->with('success', 'Venta anulada y stock restaurado');
     }
+
     /**
      * Print a sale made by id.
      */
@@ -255,4 +346,37 @@ class SaleController extends Controller
 
         return $pdf->stream("nota-venta.pdf");
     }
+
+    public function markPaid($id)
+    {
+        try {
+
+            $venta = Sale::findOrFail($id);
+
+            if ($venta->status === 'Anulado') {
+                return redirect()->back()
+                    ->with('error', 'No se puede pagar una venta anulada');
+            }
+
+            if ($venta->payment_status === 'Pagado') {
+                return redirect()->back()
+                    ->with('info', 'La venta ya está pagada');
+            }
+
+            $venta->payment_status = 'Pagado';
+            $venta->paid_at = now();
+            $venta->save();
+
+            return redirect()->back()
+                ->with('success', 'Venta marcada como pagada');
+
+        } catch (Exception $e) {
+
+            Log::error('Error al marcar pago: '.$e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'No se pudo registrar el pago');
+        }
+    }
+
 }

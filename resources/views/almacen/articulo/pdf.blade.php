@@ -1,136 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Nota de Venta</title>
+    <title>Inventario</title>
+
     <style>
         @page {
-            size: A4;
             margin: 1.5cm;
         }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 0 auto;
-            padding: 0;
-            width: 100%;
-            max-width: 18cm;
+            font-size: 12px;
         }
-        .logo {
+
+        /* HEADER */
+        .header {
             width: 100%;
-            margin-bottom: 20px;
-            /* border: 1px solid #ddd; */
-            /* background-color: #f9f9f9; */
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .titulo {
             text-align: center;
-            line-height: 100px;
-            color: #999;
+            font-size: 22px;
+            font-weight: bold;
         }
-        .header-container {
-            width: 100%;
-            margin-bottom: 20px;
+
+        .fecha {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 10px;
+            color: #666;
         }
-        .left, .right {
-            width: 45%;
-            display: inline-block;
-            vertical-align: top;
-        }
-        .left {
-            float: left;
-        }
-        .right {
-            float: right;
-        }
-        .date-table, .document-info {
+
+        /* TABLA */
+        .products-table {
             width: 100%;
             border-collapse: collapse;
+        }
+
+        .products-table th,
+        .products-table td {
             border: 1px solid #000;
+            padding: 6px;
         }
-        .date-table th, .date-table td,
-        .document-info td {
-            border: 1px solid #000;
-            padding: 5px;
-            text-align: center;
-        }
-        .info-table, .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .info-table td {
-            padding: 5px 0;
-        }
-        .products-table th, .products-table td {
-            border: 1px solid #000;
-            padding: 5px;
-        }
+
         .products-table th {
             background-color: #f2f2f2;
             text-align: center;
         }
-        .total-row {
+
+        .nombre {
             font-weight: bold;
         }
-        .total-cell {
-            text-align: right;
-            padding-right: 10px;
-        }
-        .signature {
-            margin-top: 50px;
-            width: 100%;
-        }
-        .sig-block {
-            display: inline-block;
-            width: 45%;
-            text-align: center;
-        }
-        .underline {
-            border-top: 1px solid #000;
-            margin: 30px auto 5px auto;
-            width: 80%;
-        }
-        .payment-option {
-            display: inline-block;
-            margin-right: 20px;
-        }
-        .checkbox {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 1px solid #000;
-            text-align: center;
-            line-height: 12px;
+
+        .descripcion {
             font-size: 10px;
-            margin-right: 5px;
-        }
-        .clearfix {
-            clear: both;
+            color: #777;
+            margin-top: 2px;
         }
     </style>
 </head>
+
 <body>
 
+    <!-- HEADER -->
+    <div class="header">
 
-
-    <div class="header-container">
-
-
-        <div class="right">
-            <table class="document-info">
-                <tr>
-                    <td><strong>RUC:</strong></td>
-                    <td>10198711921</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>ALMACEN</strong></td>
-                </tr>
-            </table>
+        <div class="titulo">
+            Inventario
         </div>
 
-        <div class="clearfix"></div>
+        <div class="fecha">
+            Fecha generación: {{ $fechaGeneracion->format('d/m/Y H:i') }}
+        </div>
+
     </div>
 
 
-
+    <!-- TABLA -->
     <table class="products-table">
+
         <thead>
             <tr>
                 <th>ID</th>
@@ -139,31 +92,43 @@
                 <th>STOCK</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach ($articulos as $item)
                 <tr>
-                    <td style="text-align: center;">{{ $item->id }}</td>
-                    <td style="text-align: center;">{{ $item->codevar }}</td>
-                    <td style="text-align: center;">{{ $item->name }}</td>
-                    <td style="text-align: center;">{{ $item->stock}}</td>
+
+                    <td style="text-align:center;">
+                        {{ $item->id }}
+                    </td>
+
+                    <td style="text-align:center;">
+                        {{ $item->codevar }}
+                    </td>
+
+                    <td>
+
+                        <div class="nombre">
+                            {{ $item->name }}
+                        </div>
+
+                        @if ($item->description)
+                            <div class="descripcion">
+                                {{ $item->description }}
+                            </div>
+                        @endif
+
+                    </td>
+
+                    <td style="text-align:center;">
+                        {{ $item->stock }}
+                    </td>
+
                 </tr>
             @endforeach
-
         </tbody>
+
     </table>
 
-    </br>
-    </br>
-    <div class="signature">
-        <div class="sig-block">
-            <div class="underline"></div>
-            <strong>Firma del Vendedor</strong>
-        </div>
-        <div class="sig-block">
-            <div class="underline"></div>
-            <strong>Recibí Conforme</strong>
-        </div>
-    </div>
-
 </body>
+
 </html>

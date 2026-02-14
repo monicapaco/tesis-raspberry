@@ -144,7 +144,7 @@
                                             </button>
 
                                             @if ($in->status != 'Anulado')
-                                                <ul class="dropdown-menu">
+                                                <ul class="dropdown-menu dropdown-menu-end">
 
                                                     {{-- Editar --}}
                                                     {{-- <li>

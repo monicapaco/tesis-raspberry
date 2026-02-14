@@ -136,6 +136,11 @@ $input-focus-box-shadow: 0 0 0 0.2rem rgba(242, 183, 5, 0.25);
 }
 
 /* tables */
+.table-responsive {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
 .table-header-soft {
     background-color: #dee2e6;
 }

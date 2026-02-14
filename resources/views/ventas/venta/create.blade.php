@@ -52,6 +52,7 @@
                             <option>Boleta</option>
                             <option>Factura</option>
                             <option>Ticket</option>
+                            <option>Nota de pedido</option>
                         </select>
                     </div>
 

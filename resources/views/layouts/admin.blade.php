@@ -60,8 +60,8 @@
                     </a>
 
                     <div class="submenu" id="almacenMenu">
-                        <a href="{{ url('almacen/articulo') }}" class="nav-link">Inventario</a>
                         <a href="{{ url('almacen/categoria') }}" class="nav-link">Categorías</a>
+                        <a href="{{ url('almacen/articulo') }}" class="nav-link">Inventario</a>
                     </div>
                 </li>
 
@@ -73,8 +73,8 @@
                     </a>
 
                     <div class="submenu" id="comprasMenu">
-                        <a href="{{ url('compras/ingreso') }}" class="nav-link">Ingresos</a>
                         <a href="{{ url('compras/proveedor') }}" class="nav-link">Proveedores</a>
+                        <a href="{{ url('compras/ingreso') }}" class="nav-link">Ingresos</a>
                     </div>
                 </li>
 
@@ -86,9 +86,9 @@
                     </a>
 
                     <div class="submenu" id="ventasMenu">
-                        <a href="{{ url('ventas/venta') }}" class="nav-link">Ventas</a>
-                        <a href="{{ url('ventas/cliente') }}" class="nav-link">Clientes</a>
                         <a href="{{ url('ventas/transporte') }}" class="nav-link">Transporte</a>
+                        <a href="{{ url('ventas/cliente') }}" class="nav-link">Clientes</a>
+                        <a href="{{ url('ventas/venta') }}" class="nav-link">Ventas</a>
                     </div>
                 </li>
 

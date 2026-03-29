@@ -8,12 +8,10 @@ Antes de iniciar, asegúrate de tener instalado:
 * **PHP**: v8.2.30 recomendada
 * **Composer**: v2.9.4 recomendada
 * **Servidor local con MySQL**:
-
   * Windows → se recomienda Laragon
   * Linux → cualquier instalación estándar de MySQL o MariaDB
 
 > Las versiones exactas están en el archivo `.versions` para referencia.
-
 > Windows: el proyecto puede estar en cualquier carpeta accesible desde la terminal, no es necesario `htdocs`.
 > Linux: igual, cualquier carpeta de proyectos funciona.
 
@@ -28,19 +26,25 @@ Antes de iniciar, asegúrate de tener instalado:
 ```bash
 npm run set:config
 ```
+
 o
+
 ```bash
-node scripts/set-configs.js
+node scripts/setup.mjs
 ```
 
 Esto hará:
 
-* `composer install`
-* Copia `.env` y genera la key (`php artisan key:generate`)
+* `composer install` y `dump-autoload`
+* Copia `.env.example → .env` y genera la key (`php artisan key:generate`)
+* Valida la configuración de base de datos antes de migrar
 * Ejecuta migraciones (`php artisan migrate`)
 * Instala dependencias Node (`npm install`)
+* Opcionalmente ejecuta seeders
 
 > Solo se necesita ejecutar **una vez**.
+> Si las migraciones fallan, el script indicará la causa más probable y cómo resolverla.
+> El log de cada ejecución se guarda en `storage/logs/setup.log`.
 
 ### Manualmente (opcional)
 
@@ -70,7 +74,9 @@ npm install
 ```bash
 npm run dev:simple
 ```
+
 o
+
 ```bash
 node scripts/start-simple.js
 ```
@@ -101,11 +107,11 @@ PRERREQUISITOS INSTALADOS
        │
        ▼
 Ejecutar script de preparación
-   (set-configs.js / npm run set:config)
+   npm run set:config
        │
        ▼
 Ejecutar script de desarrollo
-   (start-simple.js / npm run dev:simple)
+   npm run dev:simple
        │
        ▼
 Proyecto levantado en http://localhost:8000
@@ -115,8 +121,61 @@ Proyecto levantado en http://localhost:8000
 
 ---
 
-## 5. Archivos de scripts
+## 5. Deploy a producción (Raspberry Pi)
 
-* `scripts/set-configs.js` → prepara todo (Composer + Node + migraciones)
-* `scripts/start-simple.js` → levanta Vite y Laravel en modo desarrollo, con filtrado de warnings
+El proyecto incluye un script de deploy para actualizar el servidor de producción. Solo aplica si tienes acceso SSH a la Raspberry Pi.
 
+### Requisitos
+
+* Acceso SSH a la Raspberry Pi
+* El proyecto clonado en `/var/www/app`
+* Permisos de ejecución en el script (solo configurar una vez):
+
+```bash
+chmod +x deploy.sh
+```
+
+### Uso
+
+```bash
+./deploy.sh <rama>
+```
+
+**Ejemplo** — deploy desde la rama `main`:
+
+```bash
+./deploy.sh main
+```
+
+### ¿Qué hace el script?
+
+1. Verifica que la rama exista en el repositorio remoto
+2. Detecta si hay cambios nuevos (si no hay, termina sin hacer nada)
+3. Muestra los commits que se van a aplicar
+4. **Hace backup de la base de datos** antes de tocar nada
+5. Activa el modo mantenimiento (los usuarios ven un aviso en vez de errores)
+6. Descarga los cambios (`git pull`)
+7. Actualiza dependencias PHP y JS
+8. Ejecuta migraciones
+9. Regenera el caché de Laravel
+10. Ajusta permisos de carpetas
+11. Desactiva el modo mantenimiento
+
+> Si algo falla en cualquier paso, el sitio **siempre** vuelve a estar disponible automáticamente.
+> El log de cada deploy se guarda en `/var/log/deploy.log`.
+
+### ¿Cuándo NO usar el script?
+
+* Si el `.env` de producción no está configurado
+* Si es la primera vez que se instala el proyecto en el servidor (hacer setup manual)
+* Si la migración que se va a aplicar borra columnas o tablas — revisar antes con el equipo
+
+---
+
+## 6. Archivos de scripts
+
+| Archivo | Descripción |
+|---|---|
+| `scripts/setup.mjs` | Prepara el proyecto: dependencias, `.env`, migraciones |
+| `scripts/start-simple.js` | Levanta Vite y Laravel en modo desarrollo |
+| `deploy.sh` | Deploy a producción en la Raspberry Pi |

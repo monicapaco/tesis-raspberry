@@ -110,7 +110,7 @@
 
                 <div class="d-flex align-items-center gap-3">
 
-                    <span>{{ Auth::user()->name }}</span>
+                    {{-- <span>{{ Auth::user()->name }}</span> --}}
 
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

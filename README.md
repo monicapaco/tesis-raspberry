@@ -1,66 +1,181 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tesis Raspberry - Proyecto Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Prerrequisitos
 
-## About Laravel
+Antes de iniciar, asegúrate de tener instalado:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* **Node.js**: v22.18.0 recomendada
+* **PHP**: v8.2.30 recomendada
+* **Composer**: v2.9.4 recomendada
+* **Servidor local con MySQL**:
+  * Windows → se recomienda Laragon
+  * Linux → cualquier instalación estándar de MySQL o MariaDB
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+> Las versiones exactas están en el archivo `.versions` para referencia.
+> Windows: el proyecto puede estar en cualquier carpeta accesible desde la terminal, no es necesario `htdocs`.
+> Linux: igual, cualquier carpeta de proyectos funciona.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 2. Preparación del proyecto
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Usando scripts (recomendado)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. Instala todas las dependencias de PHP y Node, genera la key y realiza migraciones:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+npm run set:config
+```
 
-## Laravel Sponsors
+o
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+node scripts/setup.mjs
+```
 
-### Premium Partners
+Esto hará:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+* `composer install` y `dump-autoload`
+* Copia `.env.example → .env` y genera la key (`php artisan key:generate`)
+* Valida la configuración de base de datos antes de migrar
+* Ejecuta migraciones (`php artisan migrate`)
+* Instala dependencias Node (`npm install`)
+* Opcionalmente ejecuta seeders
 
-## Contributing
+> Solo se necesita ejecutar **una vez**.
+> Si las migraciones fallan, el script indicará la causa más probable y cómo resolverla.
+> El log de cada ejecución se guarda en `storage/logs/setup.log`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Manualmente (opcional)
 
-## Code of Conduct
+Si prefieres hacerlo sin scripts:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Instalar dependencias PHP
+composer install
 
-## Security Vulnerabilities
+# Copiar el archivo de entorno y generar clave
+cp .env.example .env
+php artisan key:generate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Migrar la base de datos
+php artisan migrate
 
-## License
+# Instalar dependencias Node
+npm install
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 3. Levantar el proyecto (modo desarrollo)
+
+### Usando scripts (recomendado)
+
+```bash
+npm run dev:simple
+```
+
+o
+
+```bash
+node scripts/start-simple.js
+```
+
+Esto hará:
+
+* Inicia Vite para el frontend (`npm run dev`)
+* Levanta servidor Laravel (`php artisan serve`)
+* Filtra automáticamente los warnings de Sass
+* Muestra la URL de la app: `http://localhost:8000`
+
+### Manualmente (opcional)
+
+```bash
+# Levantar Vite
+npm run dev
+
+# Levantar Laravel
+php artisan serve
+```
+
+---
+
+## 4. Flujo resumido
+
+```text
+PRERREQUISITOS INSTALADOS
+       │
+       ▼
+Ejecutar script de preparación
+   npm run set:config
+       │
+       ▼
+Ejecutar script de desarrollo
+   npm run dev:simple
+       │
+       ▼
+Proyecto levantado en http://localhost:8000
+```
+
+> Este flujo asegura que todo esté configurado correctamente, incluyendo dependencias y base de datos.
+
+---
+
+## 5. Deploy a producción (Raspberry Pi)
+
+El proyecto incluye un script de deploy para actualizar el servidor de producción. Solo aplica si tienes acceso SSH a la Raspberry Pi.
+
+### Requisitos
+
+* Acceso SSH a la Raspberry Pi
+* El proyecto clonado en `/var/www/app`
+* Permisos de ejecución en el script (solo configurar una vez):
+
+```bash
+chmod +x deploy.sh
+```
+
+### Uso
+
+```bash
+./deploy.sh <rama>
+```
+
+**Ejemplo** — deploy desde la rama `main`:
+
+```bash
+./deploy.sh main
+```
+
+### ¿Qué hace el script?
+
+1. Verifica que la rama exista en el repositorio remoto
+2. Detecta si hay cambios nuevos (si no hay, termina sin hacer nada)
+3. Muestra los commits que se van a aplicar
+4. **Hace backup de la base de datos** antes de tocar nada
+5. Activa el modo mantenimiento (los usuarios ven un aviso en vez de errores)
+6. Descarga los cambios (`git pull`)
+7. Actualiza dependencias PHP y JS
+8. Ejecuta migraciones
+9. Regenera el caché de Laravel
+10. Ajusta permisos de carpetas
+11. Desactiva el modo mantenimiento
+
+> Si algo falla en cualquier paso, el sitio **siempre** vuelve a estar disponible automáticamente.
+> El log de cada deploy se guarda en `/var/log/deploy.log`.
+
+### ¿Cuándo NO usar el script?
+
+* Si el `.env` de producción no está configurado
+* Si es la primera vez que se instala el proyecto en el servidor (hacer setup manual)
+* Si la migración que se va a aplicar borra columnas o tablas — revisar antes con el equipo
+
+---
+
+## 6. Archivos de scripts
+
+| Archivo | Descripción |
+|---|---|
+| `scripts/setup.mjs` | Prepara el proyecto: dependencias, `.env`, migraciones |
+| `scripts/start-simple.js` | Levanta Vite y Laravel en modo desarrollo |
+| `deploy.sh` | Deploy a producción en la Raspberry Pi |

@@ -16,20 +16,26 @@ class ClientController extends Controller
     {
         $this->middleware('auth');
     }
+
     public function index(Request $request)
     {
-        //
         if ($request) {
-            # code...
-            $query=trim($request->get('searchText'));
+
+            $query = trim($request->get('searchText'));
+
             $personas = DB::table('entities')
-                        ->where('name','LIKE','%'.$query.'%')
-                        ->where('type','=','Cliente')
-                        ->orWhere('n_document','LIKE','%'.$query.'%')
-                        ->where('type','=','Cliente')
-                        ->orderBy('id','desc')
-                        ->paginate(7);
-            return view('ventas.cliente.index',["personas"=>$personas,"searchText"=>$query]);
+                ->where('type', 'Cliente')
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('n_document', 'LIKE', '%' . $query . '%');
+                })
+                ->orderBy('id', 'desc')
+                ->paginate(7);
+
+            return view('ventas.cliente.index', [
+                "personas" => $personas,
+                "searchText" => $query
+            ]);
         }
     }
 
@@ -47,21 +53,24 @@ class ClientController extends Controller
      */
     public function store(EntityFormRequest $request)
     {
-        //
-        $persona=new Entity;
-        $persona->type='Cliente';
-        $persona->name=$request->get('name');
-        $persona->type_document=$request->get('type_document');
-        $persona->n_document=$request->get('n_document');
-        $persona->address=$request->get('address');
-        $persona->region=$request->get('region');
-        $persona->province=$request->get('province');
-        $persona->district=$request->get('district');
-        $persona->phone=$request->get('phone');
-        $persona->email=$request->get('email');
-        $persona->save();
-        return redirect('ventas/cliente');
+        $persona = new Entity;
 
+        $persona->type = 'Cliente';
+        $persona->status = 'Activo';
+
+        $persona->name = $request->get('name');
+        $persona->type_document = $request->get('type_document');
+        $persona->n_document = $request->get('n_document');
+        $persona->address = $request->get('address');
+        $persona->region = $request->get('region');
+        $persona->province = $request->get('province');
+        $persona->district = $request->get('district');
+        $persona->phone = $request->get('phone');
+        $persona->email = $request->get('email');
+
+        $persona->save();
+
+        return redirect('ventas/cliente');
     }
 
     /**
@@ -116,10 +125,22 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        //
-        $persona=Entity::findOrFail($id);
-        $persona->type='Inactivo';
-        $persona->update();
+        $persona = Entity::findOrFail($id);
+
+        $persona->status = 'Inactivo';
+        $persona->save();
+
         return redirect('ventas/cliente');
     }
+
+    public function activate($id)
+    {
+        $persona = Entity::findOrFail($id);
+
+        $persona->status = 'Activo';
+        $persona->save();
+
+        return redirect('ventas/cliente');
+    }
+
 }

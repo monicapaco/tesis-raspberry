@@ -13,6 +13,7 @@ class Carrier extends Model
         'name',
         'type_document',
         'n_document',
+        'status',
         ];
     public function income():HasMany{
         return $this->hasMany(Sale::class);

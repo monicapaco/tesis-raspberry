@@ -17,15 +17,33 @@ class Sale extends Model
         'serial_voucher',
         'number_voucher',
         'status',
+        'payment_type',
+        'payment_status',
+        'paid_at',
         'total'
-        ];
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
+
     public function detailSale():HasMany{
         return $this->hasMany(DetailSale::class);
     }
+
     public function client():BelongsTo{
         return $this->belongsTo(Entity::class,'client_id');
     }
+
     public function carrier():BelongsTo{
         return $this->belongsTo(Entity::class,'carrier_id');
     }
+
+    public function getFechaPagoFormateadaAttribute()
+    {
+        return $this->paid_at
+            ? $this->paid_at->format('d/m/Y H:i')
+            : null;
+    }
+
 }

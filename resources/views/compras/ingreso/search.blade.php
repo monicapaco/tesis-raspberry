@@ -1,10 +1,10 @@
 <form method="GET" action="{{ url('compras/ingreso') }}" autocomplete="off" role="search">
     @csrf
     <div class="form-group">
-        <div class="input-group">
+        <div class="input-group mb-2">
             <input type="text" name="searchText" class="form-control" placeholder="Buscar..." value="{{ $searchText }}">
             <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary">Buscar</button>
+                <button type="submit" class="btn btn-primary ms-2">Buscar</button>
             </span>
         </div>
     </div>

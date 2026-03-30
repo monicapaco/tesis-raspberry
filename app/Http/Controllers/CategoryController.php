@@ -6,65 +6,107 @@ use App\Http\Requests\CategoryFormRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 
 class CategoryController extends Controller
 {
-    //
     public function __construct()
     {
         $this->middleware('auth');
     }
-    public function index(Request $request){
-        if ($request){
-            $query=trim($request->get('searchText'));
-            $categorias=DB::table('categories')
-                        ->where('name','like','%'.$query.'%')
-                        ->where('status','=','1')
-                        ->orderBy('id','desc')
-                        ->paginate(8);
-            return view('almacen.categoria.index',["categorias"=>$categorias,"searchText"=>$query]);
-        }
-    }
-    public function create(){
-        return view('almacen.categoria.create');
-    }
-    public function store(CategoryFormRequest $request){
-        $categoria=new Category();
-        $categoria->name=$request->get('name');
-        $categoria->description=$request->get('description');
-        $categoria->status='1';
-        $categoria->save();
-        return redirect('almacen/categoria');
-    }
-    public function show($id){
-        return view('almacen.categoria.show',['categoria'=>Category::findOrFail($id)]);
-    }
-    public function edit($id){
-        /* return view('almacen.categoria.edit',['categoria'=>Category::findOrFail($id)]); */
-        $categoria = Category::where('id', $id)
-                         ->where('status', '1') // Solo categorías activas
-                         ->first();
 
-        if (!$categoria) {
-            abort(404, 'Categoría no encontrada o inactiva');
-        }
+    /* =============================
+        LISTADO
+    ============================= */
+    public function index(Request $request)
+    {
+        $query = trim($request->get('searchText'));
 
-        return view('almacen.categoria.edit', [
-            'categoria' => $categoria
+        $categorias = Category::when($query, function ($q) use ($query) {
+                $q->where('name', 'LIKE', "%$query%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(8);
+
+        return view('almacen.categoria.index', [
+            "categorias" => $categorias,
+            "searchText" => $query
         ]);
     }
-    public function update(CategoryFormRequest $request,$id){
-        $categoria=Category::findOrFail($id);
-        $categoria->name=$request->get('name');
-        $categoria->description=$request->get('description');
-        $categoria->update();
+
+    /* =============================
+        CREAR
+    ============================= */
+    public function create()
+    {
+        return view('almacen.categoria.create');
+    }
+
+    public function store(CategoryFormRequest $request)
+    {
+        Category::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => 1
+        ]);
+
         return redirect('almacen/categoria');
     }
-    public function destroy($id){
-        $categoria=Category::findOrFail($id);
-        $categoria->status='0';
-        $categoria->update();
+
+    /* =============================
+        MOSTRAR
+    ============================= */
+    public function show($id)
+    {
+        return view('almacen.categoria.show', [
+            'categoria' => Category::findOrFail($id)
+        ]);
+    }
+
+    /* =============================
+        EDITAR (solo activos)
+    ============================= */
+    public function edit($id)
+    {
+        $categoria = Category::where('id', $id)
+            ->where('status', 1)
+            ->firstOrFail();
+
+        return view('almacen.categoria.edit', compact('categoria'));
+    }
+
+    public function update(CategoryFormRequest $request, $id)
+    {
+        $categoria = Category::findOrFail($id);
+
+        $categoria->update([
+            'name' => $request->name,
+            'description' => $request->description
+        ]);
+
+        return redirect('almacen/categoria');
+    }
+
+    /* =============================
+        DESACTIVAR
+    ============================= */
+    public function destroy($id)
+    {
+        $categoria = Category::findOrFail($id);
+        $categoria->status = 0;
+        $categoria->save();
+
+        return redirect('almacen/categoria');
+    }
+
+    /* =============================
+        ACTIVAR
+    ============================= */
+    public function activate($id)
+    {
+        $categoria = Category::findOrFail($id);
+        $categoria->status = 1;
+        $categoria->save();
+
         return redirect('almacen/categoria');
     }
 }

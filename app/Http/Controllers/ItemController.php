@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Input\Input;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class ItemController extends Controller
 {
@@ -24,12 +25,12 @@ class ItemController extends Controller
     {
         //
         if($request){
-            
+
             $query=trim($request->get('searchText'));
             $articulos= DB::table('items as i')
                         ->join('categories as c','i.category_id','=','c.id')
                         ->select('i.id','i.name','i.codevar','i.stock','c.name as categoria','i.description','i.img','i.condition')
-                        
+
                         ->where('i.name','LIKE','%'.$query.'%')
                         ->where('i.status','=','1')
                         ->orderBy('i.id','desc')
@@ -70,7 +71,7 @@ class ItemController extends Controller
 
         $articulo->status='1';
         $articulo->save();
-        return redirect('almacen/articulo');   
+        return redirect('almacen/articulo');
     }
 
     /**
@@ -106,7 +107,7 @@ class ItemController extends Controller
         return view('almacen.articulo.edit', [
             'articulo' => $articulo,
             'categorias' => $categorias
-        ]);        
+        ]);
         //
     }
 
@@ -133,7 +134,7 @@ class ItemController extends Controller
 
         $articulo->status='1';
         $articulo->update();
-        return redirect('almacen/articulo'); 
+        return redirect('almacen/articulo');
     }
 
     /**
@@ -149,20 +150,30 @@ class ItemController extends Controller
 
     }
     /**
-     * Print 
+     * Print
      */
     public function imprimir()
     {
-        $articulos= DB::table('items as i')
-            ->select('i.id','i.name','i.codevar','i.stock')
+        $articulos = DB::table('items as i')
+            ->select(
+                'i.id',
+                'i.name',
+                'i.codevar',
+                'i.stock',
+                'i.description'
+            )
             ->where('i.status','=','1')
             ->orderBy('i.id','asc')
             ->get();
-        $data=[
-            "articulos"=>$articulos,
-        ];
-        $pdf=Pdf::loadView("almacen.articulo.pdf",$data)->setPaper("A4");
 
-        return $pdf->stream("nota-almacen.pdf");
-    }    
+        $data = [
+            "articulos" => $articulos,
+            "fechaGeneracion" => Carbon::now()
+        ];
+
+        $pdf = Pdf::loadView("almacen.articulo.pdf", $data)
+            ->setPaper("A4");
+
+        return $pdf->stream("inventario.pdf");
+    }
 }

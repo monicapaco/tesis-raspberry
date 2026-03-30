@@ -1,67 +1,115 @@
 @extends('layouts.admin')
+
 @section('contenido')
 
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
-                <div class="form-group">
-                    <label for="provider">Proveedor</label>
-                    <p>{{$ingreso->name}}</p>
-                </div>
+<h3 class="mb-4 text-center fw-semibold">
+    Detalle del Ingreso
+</h3>
+
+<div class="card shadow-sm border-0 rounded-4">
+
+    <div class="card-body">
+
+        {{-- ===== CABECERA COMPROBANTE ===== --}}
+        <div class="row mb-4">
+
+            <div class="col-md-6">
+                <h5 class="fw-semibold mb-1">Proveedor</h5>
+                <p class="text-muted mb-0">
+                    {{ $ingreso->name }}
+                </p>
             </div>
-            <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
-                <div class="form-group">
-                    <label for="type_voucher">Tipo comprobante</label>
-                    <p>{{$ingreso->type_voucher}}</p>
-                </div>
+
+            <div class="col-md-6 text-md-end">
+                <h5 class="fw-semibold mb-1">
+                    {{ $ingreso->type_voucher }}
+                </h5>
+
+                <p class="text-muted mb-0">
+                    {{ $ingreso->serial_voucher }} - {{ $ingreso->number_voucher }}
+                </p>
+
+                @php
+                    $statusClass = [
+                        'Credito' => 'bg-warning text-dark',
+                        'Al contado' => 'bg-success',
+                        'Anulado' => 'bg-secondary'
+                    ];
+                @endphp
+
+                <span class="badge mt-2 {{ $statusClass[$ingreso->status] ?? 'bg-secondary' }}">
+                    {{ $ingreso->status }}
+                </span>
             </div>
-            <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
-                <div class="form-group">
-                    <label for="serial_voucher">Comprobante</label>
-                    <p>{{$ingreso->serial_voucher}}-{{$ingreso->number_voucher}}</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 col-md-4 col-xs-12">
-                <div class="form-group">
-                    <label for="status">Estado del pedido</label>
-                    <p>{{$ingreso->status}}</p>
-                </div>
-            </div>
+
         </div>
-        <div class="row">
-            <div class="panel panel-primary">
-                <div class="panel-body">
-                    <div class="col-lg-12 col-sm-12 col-md-2 col-xs-12">
-                        <table id="detalles" class="table table-striped table-bordered table-condensed table-hover">
-                            <thead style="background-color: aqua">
-                                <th>Artículo</th>
-                                <th>Cantidad</th>
-                                <th>Precio compra</th>
-                                <th>Precio venta</th>
-                                <th>Subtotal</th>
-                            </thead>
-                            <tfoot>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th><h4 id="total">S/. {{$ingreso->total}}</h4></th>
-                            </tfoot>
-                            <tbody>
-                                @foreach ($detalles as $det)
-                                    <tr>
-                                        <td>{{$det->articulo}}</td>
-                                        <td>{{$det->quantity}}</td>
-                                        <td>{{$det->purchase_price}}</td>
-                                        <td>{{$det->sale_price}}</td>
-                                        <td>{{$det->purchase_price*$det->quantity}}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+
+        <hr class="mb-4">
+
+        {{-- ===== TABLA DETALLE ===== --}}
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle rounded-table">
+
+                <thead class="table-header-soft">
+                    <tr>
+                        <th>Artículo</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">P. Compra</th>
+                        <th class="text-end">P. Venta</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach ($detalles as $det)
+                        <tr>
+                            <td>{{ $det->articulo }}</td>
+
+                            <td class="text-center">
+                                {{ $det->quantity }}
+                            </td>
+
+                            <td class="text-end">
+                                S/. {{ number_format($det->purchase_price, 2) }}
+                            </td>
+
+                            <td class="text-end">
+                                S/. {{ number_format($det->sale_price, 2) }}
+                            </td>
+
+                            <td class="text-end fw-semibold">
+                                S/. {{ number_format($det->purchase_price * $det->quantity, 2) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="4" class="text-end">
+                            TOTAL
+                        </td>
+                        <td class="text-end fs-5">
+                            S/. {{ number_format($ingreso->total, 2) }}
+                        </td>
+                    </tr>
+                </tfoot>
+
+            </table>
+
         </div>
-        
+
+    </div>
+
+</div>
+
+{{-- BOTÓN VOLVER --}}
+<div class="text-end mt-4">
+    <a href="{{ url('compras/ingreso') }}"
+       class="btn btn-outline-dark px-4">
+        Volver
+    </a>
+</div>
 
 @endsection

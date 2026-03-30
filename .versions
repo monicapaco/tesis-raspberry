@@ -1,0 +1,35 @@
+# .versions - referencia de versiones del proyecto
+
+# PHP
+PHP=8.2.30
+
+# Composer
+Composer=2.9.4
+
+# Node.js
+Node=22.18.0
+
+# NPM
+NPM=10.9.3
+
+# Laravel
+Laravel=11.x
+
+# Laravel Packages principales
+barryvdh/laravel-dompdf=3.1.x
+laravel/tinker=2.9.x
+laravel/ui=4.6.x
+
+# Dev packages
+fakerphp/faker=1.23.x
+laravel-lang/common=6.2.x
+laravel/pint=1.13.x
+laravel/sail=1.26.x
+mockery/mockery=1.6.x
+nunomaduro/collision=8.0.x
+pestphp/pest=2.34.x
+pestphp/pest-plugin-laravel=2.4.x
+spatie/laravel-ignition=2.4.x
+
+# MySQL / MariaDB
+MySQL=10.11.x

@@ -132,19 +132,19 @@ El proyecto incluye un script de deploy para actualizar el servidor de producci�
 * Permisos de ejecución en el script (solo configurar una vez):
 
 ```bash
-chmod +x deploy.sh
+chmod +x ./scripts/deploy-prod.sh
 ```
 
 ### Uso
 
 ```bash
-./deploy.sh <rama>
+./scripts/deploy-prod.sh <rama>
 ```
 
 **Ejemplo** — deploy desde la rama `main`:
 
 ```bash
-./deploy.sh main
+./scripts/deploy-prod.sh main
 ```
 
 ### ¿Qué hace el script?
@@ -178,4 +178,4 @@ chmod +x deploy.sh
 |---|---|
 | `scripts/setup.mjs` | Prepara el proyecto: dependencias, `.env`, migraciones |
 | `scripts/start-simple.js` | Levanta Vite y Laravel en modo desarrollo |
-| `deploy.sh` | Deploy a producción en la Raspberry Pi |
+| `scripts/deploy-prod.sh` | Deploy a producción en la Raspberry Pi |

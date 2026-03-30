@@ -22,6 +22,12 @@ trap cleanup EXIT
 
 set -e
 
+# Cargar fnm
+export PATH="/usr/local/bin:/usr/bin:/bin"
+export FNM_DIR="$HOME/.local/share/fnm"
+[ -s "$FNM_DIR/fnm" ] && export PATH="$FNM_DIR:$PATH"
+eval "$(fnm env 2>/dev/null)" || true
+
 echo "🚀 Iniciando deploy... [$TIMESTAMP]"
 
 # ──────────────────────────────────────────

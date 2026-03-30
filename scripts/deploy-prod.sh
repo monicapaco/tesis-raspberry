@@ -52,22 +52,10 @@ if ! git show-ref --verify --quiet refs/remotes/origin/$BRANCH; then
 fi
 
 # ──────────────────────────────────────────
-# 3. Verificar si hay cambios
+# 3. Pull
 # ──────────────────────────────────────────
-LOCAL_COMMIT=$(git rev-parse HEAD)
-REMOTE_COMMIT=$(git rev-parse origin/$BRANCH)
-
-if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
-  echo "✅ Todo está actualizado, no hay cambios nuevos"
-  exit 0
-fi
-
-echo "📦 Cambios detectados:"
-echo "   Local:  $LOCAL_COMMIT"
-echo "   Remoto: $REMOTE_COMMIT"
-echo ""
-echo "📋 Commits que se van a aplicar:"
-git log --oneline HEAD..origin/$BRANCH
+echo "📥 Descargando cambios..."
+git pull origin $BRANCH
 
 # ──────────────────────────────────────────
 # 4. Backup de base de datos (antes de tocar nada)
@@ -77,7 +65,6 @@ echo "💾 Haciendo backup de la base de datos..."
 BACKUP_DIR="/var/backups/db"
 mkdir -p $BACKUP_DIR
 
-# Lee las credenciales desde el .env de Laravel
 DB_DATABASE=$(grep '^DB_DATABASE=' .env | cut -d '=' -f2)
 DB_USERNAME=$(grep '^DB_USERNAME=' .env | cut -d '=' -f2)
 DB_PASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2)
@@ -96,23 +83,17 @@ echo "🛠️  Activando modo mantenimiento..."
 php artisan down --retry=60 || true
 
 # ──────────────────────────────────────────
-# 6. Pull
-# ──────────────────────────────────────────
-echo "📥 Descargando cambios..."
-git pull origin $BRANCH
-
-# ──────────────────────────────────────────
-# 7. Composer
+# 6. Composer
 # ──────────────────────────────────────────
 echo "📦 Instalando dependencias PHP..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
 # ──────────────────────────────────────────
-# 8. NPM + Build
+# 7. NPM + Build
 # ──────────────────────────────────────────
 if [ -f package.json ]; then
   echo "📦 Instalando dependencias JS..."
-  npm ci                  # más seguro que npm install en prod
+  npm ci
   echo "⚡ Compilando frontend..."
   npm run build
 else
@@ -120,13 +101,13 @@ else
 fi
 
 # ──────────────────────────────────────────
-# 9. Migraciones
+# 8. Migraciones
 # ──────────────────────────────────────────
 echo "🗄️  Ejecutando migraciones..."
 php artisan migrate --force
 
 # ──────────────────────────────────────────
-# 10. Cache
+# 9. Cache
 # ──────────────────────────────────────────
 echo "⚙️  Actualizando caché..."
 php artisan config:clear
@@ -138,14 +119,14 @@ php artisan route:cache
 php artisan view:cache
 
 # ──────────────────────────────────────────
-# 11. Permisos
+# 10. Permisos
 # ──────────────────────────────────────────
 echo "🔐 Ajustando permisos..."
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
 # ──────────────────────────────────────────
-# 12. Levantar sitio
+# 11. Levantar sitio
 # ──────────────────────────────────────────
 echo "🟢 Desactivando mantenimiento..."
 php artisan up
@@ -153,9 +134,10 @@ php artisan up
 # ──────────────────────────────────────────
 # Log de éxito
 # ──────────────────────────────────────────
-echo "[$TIMESTAMP] DEPLOY OK - rama: $BRANCH - commit: $REMOTE_COMMIT" >> $LOG_FILE
+CURRENT_COMMIT=$(git rev-parse HEAD)
+echo "[$TIMESTAMP] DEPLOY OK - rama: $BRANCH - commit: $CURRENT_COMMIT" >> $LOG_FILE
 
 echo ""
 echo "✅ ¡Deploy completado correctamente! 🎉"
 echo "   Rama:   $BRANCH"
-echo "   Commit: $REMOTE_COMMIT"
+echo "   Commit: $CURRENT_COMMIT"

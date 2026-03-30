@@ -8,7 +8,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
 
-    <title>@yield('title', 'Vraem Motors Joshe - Admin')</title>
+    <title>@yield('title', 'Sistema - Admin')</title>
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 

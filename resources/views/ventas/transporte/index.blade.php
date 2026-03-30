@@ -86,7 +86,7 @@
                                             Dar de baja
                                         </button>
                                     @else
-                                        <form action="{{ route('transporte.activar', $tr->id) }}" method="POST">
+                                        <form action="{{ route('transporte.activate', $tr->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
 

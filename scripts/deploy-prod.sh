@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BRANCH=$1
-PROJECT_DIR="/var/www/app"
+PROJECT_DIR="/var/www/html"
 LOG_FILE="/var/log/deploy.log"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 

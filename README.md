@@ -121,7 +121,32 @@ Proyecto levantado en http://localhost:8000
 
 ---
 
-## 5. Deploy a producción (Raspberry Pi)
+## 5. Reiniciar la base de datos
+
+Si necesitas eliminar todos los datos y comenzar nuevamente con las tablas vacías, ejecuta:
+
+```bash
+php artisan migrate:fresh
+```
+
+Este comando:
+
+1. Elimina **todas las tablas** de la base de datos configurada en `.env`.
+2. Ejecuta nuevamente todas las migraciones.
+3. Conserva la base de datos, pero recrea su estructura con las tablas vacías.
+
+Esto elimina usuarios, sesiones, caché, trabajos en cola, tokens de recuperación, inventario, compras, ventas y cualquier otro registro almacenado en la base de datos.
+
+> **ADVERTENCIA: esta operación elimina los datos de forma irreversible.**
+> Antes de ejecutarla, revisa el valor de `DB_DATABASE` en `.env` y confirma que apunta a la base de datos correcta. Realiza un respaldo si existe información que puedas necesitar después.
+>
+> Utiliza este procedimiento únicamente en entornos locales o de desarrollo. No lo ejecutes en producción.
+
+No agregues la opción `--seed` si necesitas las tablas completamente vacías. El seeder actual crea un usuario de prueba.
+
+---
+
+## 6. Deploy a producción (Raspberry Pi)
 
 El proyecto incluye un script de deploy para actualizar el servidor de producción. Solo aplica si tienes acceso SSH a la Raspberry Pi.
 
@@ -172,7 +197,7 @@ chmod +x ./scripts/deploy-prod.sh
 
 ---
 
-## 6. Archivos de scripts
+## 7. Archivos de scripts
 
 | Archivo | Descripción |
 |---|---|

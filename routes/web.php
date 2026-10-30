@@ -18,6 +18,10 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
+Route::view('password/reset-success', 'auth.passwords.success')
+    ->middleware('guest')
+    ->name('password.reset.success');
+
 Route::resource('almacen/categoria',CategoryController::class);
 Route::resource('almacen/articulo',ItemController::class);
 

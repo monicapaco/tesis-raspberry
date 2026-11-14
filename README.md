@@ -153,7 +153,7 @@ El proyecto incluye un script de deploy para actualizar el servidor de producci�
 ### Requisitos
 
 * Acceso SSH a la Raspberry Pi
-* El proyecto clonado en `/var/www/app`
+* El proyecto clonado en `/var/www/html`
 * Permisos de ejecución en el script (solo configurar una vez):
 
 ```bash
@@ -175,16 +175,15 @@ chmod +x ./scripts/deploy-prod.sh
 ### ¿Qué hace el script?
 
 1. Verifica que la rama exista en el repositorio remoto
-2. Detecta si hay cambios nuevos (si no hay, termina sin hacer nada)
-3. Muestra los commits que se van a aplicar
-4. **Hace backup de la base de datos** antes de tocar nada
+2. Comprueba que la carpeta de backups sea escribible; si faltan permisos, pide confirmación antes de intentar corregirlos con `sudo`
+3. **Hace backup de la base de datos** y cancela el deploy si no puede completarlo
+4. Descarga los cambios (`git pull`)
 5. Activa el modo mantenimiento (los usuarios ven un aviso en vez de errores)
-6. Descarga los cambios (`git pull`)
-7. Actualiza dependencias PHP y JS
-8. Ejecuta migraciones
-9. Regenera el caché de Laravel
-10. Ajusta permisos de carpetas
-11. Desactiva el modo mantenimiento
+6. Actualiza dependencias PHP y JS
+7. Ejecuta migraciones
+8. Regenera el caché de Laravel
+9. Ajusta permisos de carpetas
+10. Desactiva el modo mantenimiento
 
 > Si algo falla en cualquier paso, el sitio **siempre** vuelve a estar disponible automáticamente.
 > El log de cada deploy se guarda en `/var/log/deploy.log`.

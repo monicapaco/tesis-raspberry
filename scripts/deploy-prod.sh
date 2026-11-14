@@ -4,6 +4,8 @@ BRANCH=$1
 PROJECT_DIR="/var/www/html"
 LOG_FILE="/var/log/deploy.log"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+MAINTENANCE_ENABLED=0
+BACKUP_TEMP_FILE=""
 
 # ──────────────────────────────────────────
 # Cargar fnm con ruta absoluta
@@ -17,13 +19,25 @@ eval "$($FNM_DIR/fnm env --shell bash 2>/dev/null)" || true
 # aunque el script falle en cualquier punto
 # ──────────────────────────────────────────
 cleanup() {
-  if [ $? -ne 0 ]; then
+  local exit_code=$?
+  trap - EXIT
+
+  if [ -n "$BACKUP_TEMP_FILE" ] && [ -f "$BACKUP_TEMP_FILE" ]; then
+    rm -f -- "$BACKUP_TEMP_FILE"
+  fi
+
+  if [ "$exit_code" -ne 0 ]; then
     echo ""
-    echo "❌ El deploy falló. Intentando restaurar el sitio..."
-    php artisan up 2>/dev/null || true
+    echo "❌ El deploy falló."
+    if [ "$MAINTENANCE_ENABLED" -eq 1 ]; then
+      echo "Intentando restaurar el sitio..."
+      php artisan up 2>/dev/null || true
+    fi
     echo "⚠️  Revisa los errores arriba antes de volver a intentar."
     echo "[$TIMESTAMP] DEPLOY FALLIDO - rama: $BRANCH" >> $LOG_FILE
   fi
+
+  exit "$exit_code"
 }
 trap cleanup EXIT
 
@@ -59,35 +73,74 @@ if ! git show-ref --verify --quiet refs/remotes/origin/$BRANCH; then
 fi
 
 # ──────────────────────────────────────────
-# 3. Pull
-# ──────────────────────────────────────────
-echo "📥 Descargando cambios..."
-git pull origin $BRANCH
-
-# ──────────────────────────────────────────
-# 4. Backup de base de datos (antes de tocar nada)
+# 3. Backup de base de datos (antes de actualizar el código)
 # ──────────────────────────────────────────
 echo ""
 echo "💾 Haciendo backup de la base de datos..."
 BACKUP_DIR="/var/backups/db"
-mkdir -p $BACKUP_DIR
+
+if ! mkdir -p "$BACKUP_DIR" 2>/dev/null || [ ! -w "$BACKUP_DIR" ]; then
+  echo "⚠️  No hay permiso de escritura en $BACKUP_DIR."
+
+  if [ ! -t 0 ]; then
+    echo "❌ Se necesita una terminal interactiva para confirmar la corrección de permisos."
+    exit 1
+  fi
+
+  read -r -p "¿Deseas permitir que sudo ajuste los permisos de esta carpeta? [s/N] " CONFIRM_FIX
+  CONFIRM_FIX="${CONFIRM_FIX,,}"
+  case "$CONFIRM_FIX" in
+    s|si|sí)
+      if [ "$EUID" -eq 0 ]; then
+        install -d -o "$(id -un)" -g "$(id -gn)" -m 0700 "$BACKUP_DIR"
+      elif command -v sudo >/dev/null 2>&1; then
+        sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 0700 "$BACKUP_DIR"
+      else
+        echo "❌ No se encontró sudo para corregir los permisos."
+        exit 1
+      fi
+      ;;
+    *)
+      echo "❌ No se corrigieron los permisos. Deploy cancelado antes de actualizar el código."
+      exit 1
+      ;;
+  esac
+fi
+
+if [ ! -w "$BACKUP_DIR" ]; then
+  echo "❌ Sigue sin haber permiso de escritura en $BACKUP_DIR. Deploy cancelado."
+  exit 1
+fi
 
 DB_DATABASE=$(grep '^DB_DATABASE=' .env | cut -d '=' -f2)
 DB_USERNAME=$(grep '^DB_USERNAME=' .env | cut -d '=' -f2)
 DB_PASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2)
 
 BACKUP_FILE="$BACKUP_DIR/backup_$(date '+%Y%m%d_%H%M%S').sql"
-mysqldump -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE"
+BACKUP_TEMP_FILE=$(mktemp "$BACKUP_DIR/.backup_XXXXXX.tmp")
+if ! mysqldump -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_TEMP_FILE"; then
+  echo "❌ No se pudo generar el backup de la base de datos."
+  exit 1
+fi
+mv -- "$BACKUP_TEMP_FILE" "$BACKUP_FILE"
+BACKUP_TEMP_FILE=""
 echo "✅ Backup guardado en: $BACKUP_FILE"
 
 # Mantener solo los últimos 7 backups
 ls -t $BACKUP_DIR/backup_*.sql | tail -n +8 | xargs rm -f 2>/dev/null || true
 
 # ──────────────────────────────────────────
+# 4. Pull
+# ──────────────────────────────────────────
+echo "📥 Descargando cambios..."
+git pull origin "$BRANCH"
+
+# ──────────────────────────────────────────
 # 5. Activar mantenimiento
 # ──────────────────────────────────────────
 echo "🛠️  Activando modo mantenimiento..."
-php artisan down --retry=60 || true
+php artisan down --retry=60
+MAINTENANCE_ENABLED=1
 
 # ──────────────────────────────────────────
 # 6. Composer

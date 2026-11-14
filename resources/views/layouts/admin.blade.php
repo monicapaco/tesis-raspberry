@@ -36,10 +36,35 @@
             padding-left: 2rem;
             font-size: 0.9rem;
         }
+
+        .sidebar-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-size: 1.08rem;
+            font-weight: 600;
+        }
+
+        .sidebar-group-title i {
+            width: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
+
+    @php
+        $categoriaActive = request()->routeIs('categoria.*');
+        $articuloActive = request()->routeIs('articulo.*');
+        $proveedorActive = request()->routeIs('proveedor.*');
+        $ingresoActive = request()->routeIs('ingreso.*');
+        $transporteActive = request()->routeIs('transporte.*');
+        $clienteActive = request()->routeIs('cliente.*');
+        $ventaActive = request()->routeIs('venta.*');
+    @endphp
 
     <div class="d-flex">
 
@@ -54,41 +79,69 @@
 
                 {{-- ALMACEN --}}
                 <li>
-                    <a class="nav-link" data-bs-toggle="collapse" href="#almacenMenu">
+                    <div class="sidebar-group-title">
                         <i class="fa fa-laptop"></i>
                         <span>Almacén</span>
-                    </a>
+                    </div>
 
-                    <div class="submenu" id="almacenMenu">
-                        <a href="{{ url('almacen/categoria') }}" class="nav-link">Categorías</a>
-                        <a href="{{ url('almacen/articulo') }}" class="nav-link">Inventario</a>
+                    <div class="submenu">
+                        <a
+                            href="{{ route('categoria.index') }}"
+                            @class(['nav-link', 'active' => $categoriaActive])
+                            @if ($categoriaActive) aria-current="page" @endif
+                        >Categorías</a>
+                        <a
+                            href="{{ route('articulo.index') }}"
+                            @class(['nav-link', 'active' => $articuloActive])
+                            @if ($articuloActive) aria-current="page" @endif
+                        >Inventario</a>
                     </div>
                 </li>
 
                 {{-- COMPRAS --}}
                 <li>
-                    <a class="nav-link" data-bs-toggle="collapse" href="#comprasMenu">
+                    <div class="sidebar-group-title">
                         <i class="fa fa-th"></i>
                         <span>Compras</span>
-                    </a>
+                    </div>
 
-                    <div class="submenu" id="comprasMenu">
-                        <a href="{{ url('compras/proveedor') }}" class="nav-link">Proveedores</a>
-                        <a href="{{ url('compras/ingreso') }}" class="nav-link">Ingresos</a>
+                    <div class="submenu">
+                        <a
+                            href="{{ route('proveedor.index') }}"
+                            @class(['nav-link', 'active' => $proveedorActive])
+                            @if ($proveedorActive) aria-current="page" @endif
+                        >Proveedores</a>
+                        <a
+                            href="{{ route('ingreso.index') }}"
+                            @class(['nav-link', 'active' => $ingresoActive])
+                            @if ($ingresoActive) aria-current="page" @endif
+                        >Ingresos</a>
                     </div>
                 </li>
 
                 {{-- VENTAS --}}
                 <li>
-                    <a class="nav-link" data-bs-toggle="collapse" href="#ventasMenu">
+                    <div class="sidebar-group-title">
                         <i class="fa fa-shopping-cart"></i>
                         <span>Ventas</span>
-                    </a>
+                    </div>
 
-                    <div class="submenu" id="ventasMenu">
-                        <a href="{{ url('ventas/transporte') }}" class="nav-link">Transporte</a>
-                        <a href="{{ url('ventas/cliente') }}" class="nav-link">Clientes</a>
-                        <a href="{{ url('ventas/venta') }}" class="nav-link">Ventas</a>
+                    <div class="submenu">
+                        <a
+                            href="{{ route('transporte.index') }}"
+                            @class(['nav-link', 'active' => $transporteActive])
+                            @if ($transporteActive) aria-current="page" @endif
+                        >Transporte</a>
+                        <a
+                            href="{{ route('cliente.index') }}"
+                            @class(['nav-link', 'active' => $clienteActive])
+                            @if ($clienteActive) aria-current="page" @endif
+                        >Clientes</a>
+                        <a
+                            href="{{ route('venta.index') }}"
+                            @class(['nav-link', 'active' => $ventaActive])
+                            @if ($ventaActive) aria-current="page" @endif
+                        >Ventas</a>
                     </div>
                 </li>
 

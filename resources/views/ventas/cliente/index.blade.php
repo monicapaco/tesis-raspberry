@@ -8,9 +8,6 @@
             <h3 class="mb-0 fw-semibold">
                 Listado de clientes
             </h3>
-            <small class="text-muted">
-                Administración de clientes registrados
-            </small>
         </div>
 
     </div>

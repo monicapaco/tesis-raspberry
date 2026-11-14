@@ -154,39 +154,46 @@ El proyecto incluye un script de deploy para actualizar el servidor de producci�
 
 * Acceso SSH a la Raspberry Pi
 * El proyecto clonado en `/var/www/html`
-* Permisos de ejecución en el script (solo configurar una vez):
-
-```bash
-chmod +x ./scripts/deploy-prod.sh
-```
 
 ### Uso
 
 ```bash
-./scripts/deploy-prod.sh <rama>
+./scripts/deploy-bootstrap.sh <rama>
 ```
 
 **Ejemplo** — deploy desde la rama `main`:
 
 ```bash
-./scripts/deploy-prod.sh main
+./scripts/deploy-bootstrap.sh main
 ```
+
+Si el bootstrap todavía no existe en el servidor, ejecútalo una vez desde el contenido remoto sin actualizar todo el checkout:
+
+```bash
+cd /var/www/html
+git fetch origin main && \
+git show FETCH_HEAD:scripts/deploy-bootstrap.sh > /tmp/deploy-bootstrap.sh && \
+bash -n /tmp/deploy-bootstrap.sh && \
+bash /tmp/deploy-bootstrap.sh main
+```
+
+El deploy solicita autorización para agregar `pi` al grupo `www-data` si hace falta. Después de ese cambio, cierra la sesión SSH, vuelve a entrar y ejecuta el bootstrap otra vez. El bootstrap debe conservar el permiso de ejecución en Git.
 
 ### ¿Qué hace el script?
 
 1. Verifica que la rama exista en el repositorio remoto
-2. Comprueba que la carpeta de backups sea escribible; si faltan permisos, pide confirmación antes de intentar corregirlos con `sudo`
-3. **Hace backup de la base de datos** y cancela el deploy si no puede completarlo
-4. Descarga los cambios (`git pull`)
-5. Activa el modo mantenimiento (los usuarios ven un aviso en vez de errores)
-6. Actualiza dependencias PHP y JS
-7. Ejecuta migraciones
-8. Regenera el caché de Laravel
-9. Ajusta permisos de carpetas
+2. Descarga y valida el `deploy-prod.sh` remoto en un archivo temporal antes de ejecutarlo
+3. Comprueba los permisos y la membresía de grupo necesarios para el deploy
+4. **Hace backup de la base de datos** y cancela el deploy si no puede completarlo
+5. Ajusta `storage` y `bootstrap/cache` con autorización `sudo`
+6. Actualiza los cambios (`git pull`)
+7. Activa el modo mantenimiento (los usuarios ven un aviso en vez de errores)
+8. Actualiza dependencias PHP y JS
+9. Ejecuta migraciones y regenera el caché de Laravel
 10. Desactiva el modo mantenimiento
 
 > Si algo falla en cualquier paso, el sitio **siempre** vuelve a estar disponible automáticamente.
-> El log de cada deploy se guarda en `/var/log/deploy.log`.
+> El log de cada deploy se guarda en `$HOME/.local/state/tesis-raspberry/deploy.log`.
 
 ### ¿Cuándo NO usar el script?
 
@@ -202,4 +209,5 @@ chmod +x ./scripts/deploy-prod.sh
 |---|---|
 | `scripts/setup.mjs` | Prepara el proyecto: dependencias, `.env`, migraciones |
 | `scripts/start-simple.js` | Levanta Vite y Laravel en modo desarrollo |
+| `scripts/deploy-bootstrap.sh` | Obtiene y valida la versión remota del deploy antes de ejecutarla |
 | `scripts/deploy-prod.sh` | Deploy a producción en la Raspberry Pi |

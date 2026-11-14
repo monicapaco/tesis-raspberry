@@ -15,7 +15,7 @@
                         <div class="alert alert-success" role="alert">{{ session('status') }}</div>
                     @endif
 
-                    <form method="POST" action="{{ route('password.email') }}">
+                    <form id="password-recovery-form" method="POST" action="{{ route('password.email') }}">
                         @csrf
                         <div class="mb-4">
                             <label for="email" class="form-label">Correo electrónico</label>
@@ -27,7 +27,10 @@
                             @enderror
                         </div>
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">Enviar enlace de recuperación</button>
+                            <button id="password-recovery-submit" type="submit" class="btn btn-primary btn-lg" aria-live="polite">
+                                <span id="password-recovery-spinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
+                                <span id="password-recovery-submit-text">Enviar enlace de recuperación</span>
+                            </button>
                         </div>
                         <div class="text-center">
                             <a href="{{ route('login') }}" class="text-decoration-none">Volver a iniciar sesión</a>
@@ -38,4 +41,21 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('password-recovery-form').addEventListener('submit', function () {
+        const email = document.getElementById('email');
+        const submitButton = document.getElementById('password-recovery-submit');
+        const spinner = document.getElementById('password-recovery-spinner');
+        const submitText = document.getElementById('password-recovery-submit-text');
+
+        if (submitButton.disabled) {
+            return;
+        }
+
+        email.readOnly = true;
+        submitButton.disabled = true;
+        spinner.classList.remove('d-none');
+        submitText.textContent = 'Enviando correo…';
+    });
+</script>
 @endsection
